@@ -1,6 +1,8 @@
-# imapsynclient
+# ImapSyncClient
 
-> An electron-vue project
+> It's only an Internet Message Access Protocol Synchronization Client
+
+![image](https://github.com/ridaamirini/ImapSyncClient/blob/dev/docs/media/preview.gif?raw=true)
 
 #### Build Setup
 
