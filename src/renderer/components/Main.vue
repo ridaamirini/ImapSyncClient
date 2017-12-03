@@ -2,11 +2,11 @@
     <div id="wrapper">
         <h1 class="noselect logo" @click="aboutShow = !aboutShow">
             <span style="color:#30bfbf;">imap</span><span style="color: #A6E22E;">sync</span>
-            <span style="color:#F9266C"> <i class="fa fa-heart-o" aria-hidden="true"></i></span>
+            <span style="color:#F9266C"> <i class="fa fa-heart-o fa-beat" aria-hidden="true"></i></span>
         </h1>
         <div class="container">
             <el-row :gutter="24">
-                <el-col :span="4" :offset="21" class="noselect">
+                <!--<el-col :span="4" :offset="21" class="noselect">
                     <el-switch
                             style="display: block"
                             v-model="multipleMailboxes"
@@ -14,7 +14,7 @@
                             inactive-color="#ff4949"
                             active-text="Mailboxes">
                     </el-switch>
-                </el-col>
+                </el-col>-->
             </el-row>
             <el-row>
                 <el-col :span="24">
@@ -103,5 +103,37 @@
 
     .logo {
         cursor: pointer;
+    }
+
+    .fa-beat {
+        color: red !important;
+        animation:fa-beat 5s ease infinite;
+    }
+
+    @keyframes fa-beat {
+        0% {
+            transform:scale(1);
+        }
+        5% {
+            transform:scale(1.25);
+        }
+        20% {
+            transform:scale(1);
+        }
+        30% {
+            transform:scale(1);
+        }
+        35% {
+            transform:scale(1.25);
+        }
+        50% {
+            transform:scale(1);
+        }
+        55% {
+            transform:scale(1.25);
+        }
+        70% {
+            transform:scale(1);
+        }
     }
 </style>

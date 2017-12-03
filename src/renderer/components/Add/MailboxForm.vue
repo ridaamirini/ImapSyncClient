@@ -29,27 +29,41 @@
             </el-col>
         </el-row>
         <el-row :gutter="24">
-            <el-col :span="12" class="progressbar-box">
-                <h4>Test 1/4 Mailboxes</h4>
-                <el-progress class="progressbar" :text-inside="true" :stroke-width="18" :percentage="0"></el-progress>
+            <el-col :span="12" class="_shell-box">
+                <shell-alike-box></shell-alike-box>
             </el-col>
-            <el-col :span="4" :offset="4">
+            <el-col :span="4" :offset="16">
                 <el-badge :value="mailboxes.length" :max="9999">
-                    <el-button type="success" icon="el-icon-plus" @click="addMailbox">Add</el-button>
+                    <el-button type="success" icon="el-icon-plus" :disabled="isOnProcess" @click="addMailbox">Add</el-button>
                 </el-badge>
             </el-col>
             <el-col :span="4">
                 <el-button type="primary" v-show="!isOnProcess" icon="el-icon-refresh" @click="migrateMailboxes" :disabled="!(mailboxes.length > 0)">Migrate</el-button>
-                <el-button type="danger" v-show="isOnProcess" icon="el-icon-close">Abort</el-button>
+                <el-button type="danger" v-show="isOnProcess" icon="el-icon-close" @click="abortDialog = true">Abort</el-button>
             </el-col>
         </el-row>
+        <el-dialog
+                title="Warning"
+                :visible.sync="abortDialog"
+                width="30%"
+                center>
+            <span>Do you really want to end the process?</span>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="abortDialog = false">Cancel</el-button>
+                <el-button type="danger" @click="abortMigration">Yes, abort!</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
 <script>
+    import ShellAlikeBox from '../ShellAlikeBox.vue';
+    import EventBus from '../../store/modules/EventBus.js';
+
     export default {
         name: 'mailbox-form',
         props: ['password'],
+        components: { ShellAlikeBox },
         computed: {
             mailboxes: {
                 get () {
@@ -57,10 +71,19 @@
                 }
             }
         },
+        updated () {
+            EventBus.$emit('isOnProcess', this.isOnProcess);
+            this.completeMigration();
+        },
         data () {
             return {
                 isOnProcess: false,
                 labelPosition: 'left',
+                total: 0,
+                queue: 0,
+                finished: 0,
+                skipped: 0,
+                abortDialog: false,
                 form: {
                     mailbox_from: '',
                     password_from: '',
@@ -121,35 +144,95 @@
             },
             migrateMailboxes () {
                 this.isOnProcess = true;
+                this.total = this.mailboxes.length;
+                this.$store.commit('addLine', 'Migration started ...');
 
                 this.$notify({
                     title: 'Migration',
-                    message: 'The migration of the mailboxes has started',
+                    message: 'Migration started',
                     type: 'info'
                 });
 
-                for (let mailbox in this.mailboxes) {
-                    this.$http.get('http://lamiral.info/cgi-bin/imapsync', {
-                        params: {
+                for (let index in this.mailboxes) {
+                    this.$store.commit('addLine', 'Request to migrate (' + this.mailboxes[index].mailbox_from + ' => ' + this.mailboxes[index].mailbox_to + ')');
+
+                    let mailbox = this.mailboxes[index];
+
+                    this.$http.post('http://localhost:8080/imapsync', {
                             host1: mailbox.imap_from,
                             user1: mailbox.mailbox_from,
                             password1: mailbox.password_from,
                             host2: mailbox.imap_to,
                             user2: mailbox.mailbox_to,
                             password2: mailbox.password_to
-                        }
-                    }).then(function (response) {
-                        console.log(response);
-                    }).catch(function (error) {
+                    }).then((response) => {
+                        let uuid = response.data.uuid;
+                        this.$store.commit('addLine', 'Started to migrate (' + this.mailboxes[index].mailbox_from + ' => ' + this.mailboxes[index].mailbox_to + ') <=> ' + uuid + ' [Emitted]');
+
+                        let queueChecker = setInterval(() => {
+                            this.$http.get('http://localhost:8080/imapsync/queue/' + uuid)
+                                .then((response) => {
+                                    if (response.data.status === 'successful') {
+                                        clearInterval(queueChecker);
+                                        this.$store.commit('addLine', '==== LOG (' + this.mailboxes[index].mailbox_from + ' => ' + this.mailboxes[index].mailbox_to + ') ====');
+                                        this.$store.commit('addLine', response.data.log);
+                                        this.$store.commit('addLine', '==== Ended ====');
+                                        this.$store.commit('addLine', this.mailboxes[index].mailbox_from + ' => ' + this.mailboxes[index].mailbox_to + ' <=> ' + uuid + ' [Finished]');
+                                        this.$store.commit('removeMailbox', index);
+                                        this.finished++;
+                                    }
+                                    else if (response.data.status === 'error') {
+                                        clearInterval(queueChecker);
+                                        this.$store.commit('addLine', 'Failed to migrate (' + this.mailboxes[index].mailbox_from + ' => ' + this.mailboxes[index].mailbox_to + ') <=> ' + uuid + ' [Skipped]');
+                                        this.skipped++;
+                                    }
+                                }).catch((error) => {
+                                    clearInterval(queueChecker);
+                                    this.$store.commit('addLine', 'Failed to migrate (' + this.mailboxes[index].mailbox_from + ' => ' + this.mailboxes[index].mailbox_to + ') <=> ' + uuid + ' [Skipped]');
+                                    this.skipped++;
+                                    console.log(error);
+                                });
+                        }, 3000);
+                    }).catch((error) => {
+                        this.$store.commit('addLine', 'Failed to migrate (' + this.mailboxes[index].mailbox_from + ' => ' + this.mailboxes[index].mailbox_to + ') [Skipped]');
+                        this.skipped++;
                         console.log(error);
                     });
                 }
+            },
+            abortMigration () {
+                this.isOnProcess = false;
+                this.abortDialog = false;
+                this.$store.commit('addLine', 'Migration aborted ...');
+                this.$notify({
+                    title: 'Migration',
+                    message: 'Migration aborted',
+                    type: 'error'
+                });
+            },
+            completeMigration () {
+                if (this.queue === 0 && this.finished === 0 && this.skipped === 0) return false;
+
+                this.$store.commit('addLine', 'Total: ' + this.total + ' | Queue: ' + this.queue + ' | Finished: ' + this.finished + ' | Skipped: ' + this.skipped);
+
+                if (this.mailboxes.length === 0) {
+                    this.isOnProcess = false;
+                    this.abortDialog = false;
+                    this.resetCounter();
+                }
+            },
+            resetCounter () {
+                // Reset counter
+                this.total = 0;
+                this.finished = 0;
+                this.skipped = 0;
+                this.queue = 0;
             }
         }
     };
 </script>
 <style>
-    .progressbar-box {
+    ._shell-box {
         margin-top: -5px;
     }
 </style>

@@ -43,7 +43,6 @@
                 width="150">
         </el-table-column>
         <el-table-column
-                v-if="!locked"
                 fixed="right"
                 align="center"
                 label="-"
@@ -51,6 +50,7 @@
             <template slot-scope="scope">
                 <el-button
                         @click.native.prevent="deleteRow(scope.$index)"
+                        :disabled="locked"
                         type="text"
                         icon="el-icon-delete">
                 </el-button>
@@ -61,13 +61,20 @@
 
 <script>
     import QueueTablePassword from './QueueTablePassword.vue';
+    import EventBus from '../../store/modules/EventBus.js';
 
     export default {
         name: 'queue-table',
         components: { QueueTablePassword },
+        mounted () {
+            EventBus.$on('isOnProcess', this.processHandler);
+        },
         methods: {
             deleteRow (index) {
                 this.$store.commit('removeMailbox', index);
+            },
+            processHandler (data) {
+                this.locked = data;
             }
         },
         data () {
