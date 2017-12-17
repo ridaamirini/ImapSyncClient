@@ -28,7 +28,7 @@
             </el-row>
         </div>
 
-        <about :visible="aboutShow"></about>
+        <!--<about :visible="aboutShow"></about>-->
     </div>
 </template>
 

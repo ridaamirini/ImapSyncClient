@@ -33,13 +33,13 @@
                 <shell-alike-box></shell-alike-box>
             </el-col>
             <el-col :span="4" :offset="16">
-                <el-badge :value="mailboxes.length" :max="9999">
+                <el-badge class="noselect" :value="mailboxes.length" :max="9999">
                     <el-button type="success" icon="el-icon-plus" :disabled="isOnProcess" @click="addMailbox">Add</el-button>
                 </el-badge>
             </el-col>
             <el-col :span="4">
-                <el-button type="primary" v-show="!isOnProcess" icon="el-icon-refresh" @click="migrateMailboxes" :disabled="!(mailboxes.length > 0)">Migrate</el-button>
-                <el-button type="danger" v-show="isOnProcess" icon="el-icon-close" @click="abortDialog = true">Abort</el-button>
+                <el-button type="primary" v-show="!isOnProcess" icon="el-icon-refresh" @click="startMigration" :disabled="!(mailboxes.length > 0)">Migrate</el-button>
+                <el-button type="danger" v-show="isOnProcess" icon="el-icon-close" @click="abortMigration">Abort</el-button>
             </el-col>
         </el-row>
         <el-dialog
@@ -73,14 +73,13 @@
         },
         updated () {
             EventBus.$emit('isOnProcess', this.isOnProcess);
-            this.completeMigration();
         },
         data () {
             return {
                 isOnProcess: false,
                 labelPosition: 'left',
                 total: 0,
-                queue: 0,
+                queue: [],
                 finished: 0,
                 skipped: 0,
                 abortDialog: false,
@@ -115,7 +114,7 @@
             };
         },
         methods: {
-            validateForm: async function () {
+            async validateForm () {
                 let result = true;
 
                 this.$refs['formSource'].validate((valid) => {
@@ -134,7 +133,7 @@
 
                 return result;
             },
-            addMailbox: async function () {
+            async addMailbox () {
                 if (!await this.validateForm()) return false;
 
                 this.$store.commit('addMailbox', Object.assign({}, this.form));
@@ -142,80 +141,152 @@
                 this.$refs['formSource'].resetFields();
                 this.$refs['formDestination'].resetFields();
             },
-            migrateMailboxes () {
+             migrateMailboxes () {
+                // On Abort stop recursion
+                if (!this.isOnProcess) return;
+
+                let index = 0;
+
+                if (this.mailboxes.length === 0 || this.mailboxes[index] === undefined || typeof this.mailboxes[index] !== 'object') return;
+
+                let mailbox = this.mailboxes[index];
+
+                this.$store.commit('addLine', 'Request to migrate (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ')');
+
+                this.$http.post('http://localhost:8080/imapsync', {
+                    host1: mailbox.imap_from,
+                    user1: mailbox.mailbox_from,
+                    password1: mailbox.password_from,
+                    host2: mailbox.imap_to,
+                    user2: mailbox.mailbox_to,
+                    password2: mailbox.password_to
+                }).then((response) => {
+                    let uuid = response.data.uuid;
+                    this.$store.commit('addLine', 'Started to migrate (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') <=> ' + uuid + ' [Emitted]');
+
+                    let queueChecker = setInterval(() => {
+                        this.$http.get('http://localhost:8080/imapsync/queue/' + uuid)
+                            .then((response) => {
+                                if (response.data.status === 'queue' && this.queue.map(el => el.uuid).indexOf(uuid) === -1) {
+                                    this.queue.push(response.data);
+                                    if (!this.isOnProcess) this.abortMigration();
+                                }
+                                // Stop on ABORT
+                                if (!this.isOnProcess) {
+                                    clearInterval(queueChecker);
+                                    return;
+                                }
+                                if (response.data.status === 'successful') {
+                                    clearInterval(queueChecker);
+
+                                    this.$store.commit('addLine', '==== LOG (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') ====');
+                                    this.$store.commit('addLine', response.data.log);
+                                    this.$store.commit('addLine', '==== LOG Ended ====');
+                                    this.$store.commit('addLine', mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ' <=> ' + uuid + ' [Finished]');
+                                    this.$store.commit('removeMailbox', index);
+                                    this.queue.splice(this.queue.map(el => el.uuid).indexOf(uuid), 1);
+
+                                    this.finished++;
+
+                                    this.completeMigration();
+                                    // Tick next Mailbox
+                                    this.migrateMailboxes();
+                                }
+                                else if (response.data.status === 'error') {
+                                    clearInterval(queueChecker);
+
+                                    // Stop on ABORT
+                                    if (!this.isOnProcess) return;
+
+                                    this.$store.commit('addLine', 'Failed to migrate (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') <=> ' + uuid + ' [Skipped]');
+                                    // Remove skipped from Mailbox list
+                                    this.$store.commit('removeMailbox', index);
+                                    this.queue.splice(this.queue.map(el => el.uuid).indexOf(uuid), 1);
+
+                                    this.skipped++;
+                                    // Tick next Mailbox
+                                    this.migrateMailboxes();
+                                }
+                            }).catch((error) => {
+                            clearInterval(queueChecker);
+
+                            // Stop on ABORT
+                            if (!this.isOnProcess) return;
+
+                            this.$store.commit('addLine', 'Failed to migrate (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') <=> ' + uuid + ' [Skipped]');
+                            // Remove skipped from Mailbox list
+                            this.$store.commit('removeMailbox', index);
+                            this.queue.splice(this.queue.map(el => el.uuid).indexOf(uuid), 1);
+
+                            this.skipped++;
+                            // Tick next Mailbox
+                            this.migrateMailboxes();
+
+                            console.log(error);
+                        });
+                    }, 3000);
+                }).catch((error) => {
+                    this.$store.commit('addLine', 'Failed to migrate (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') [Skipped]');
+                    // Remove skipped from Mailbox list
+                    this.$store.commit('removeMailbox', index);
+
+                    this.skipped++;
+                    // Tick next Mailbox
+                    this.migrateMailboxes();
+                    console.log(error);
+                });
+            },
+            startMigration () {
                 this.isOnProcess = true;
                 this.total = this.mailboxes.length;
                 this.$store.commit('addLine', 'Migration started ...');
-
                 this.$notify({
                     title: 'Migration',
                     message: 'Migration started',
                     type: 'info'
                 });
 
-                for (let index in this.mailboxes) {
-                    this.$store.commit('addLine', 'Request to migrate (' + this.mailboxes[index].mailbox_from + ' => ' + this.mailboxes[index].mailbox_to + ')');
-
-                    let mailbox = this.mailboxes[index];
-
-                    this.$http.post('http://localhost:8080/imapsync', {
-                            host1: mailbox.imap_from,
-                            user1: mailbox.mailbox_from,
-                            password1: mailbox.password_from,
-                            host2: mailbox.imap_to,
-                            user2: mailbox.mailbox_to,
-                            password2: mailbox.password_to
-                    }).then((response) => {
-                        let uuid = response.data.uuid;
-                        this.$store.commit('addLine', 'Started to migrate (' + this.mailboxes[index].mailbox_from + ' => ' + this.mailboxes[index].mailbox_to + ') <=> ' + uuid + ' [Emitted]');
-
-                        let queueChecker = setInterval(() => {
-                            this.$http.get('http://localhost:8080/imapsync/queue/' + uuid)
-                                .then((response) => {
-                                    if (response.data.status === 'successful') {
-                                        clearInterval(queueChecker);
-                                        this.$store.commit('addLine', '==== LOG (' + this.mailboxes[index].mailbox_from + ' => ' + this.mailboxes[index].mailbox_to + ') ====');
-                                        this.$store.commit('addLine', response.data.log);
-                                        this.$store.commit('addLine', '==== Ended ====');
-                                        this.$store.commit('addLine', this.mailboxes[index].mailbox_from + ' => ' + this.mailboxes[index].mailbox_to + ' <=> ' + uuid + ' [Finished]');
-                                        this.$store.commit('removeMailbox', index);
-                                        this.finished++;
-                                    }
-                                    else if (response.data.status === 'error') {
-                                        clearInterval(queueChecker);
-                                        this.$store.commit('addLine', 'Failed to migrate (' + this.mailboxes[index].mailbox_from + ' => ' + this.mailboxes[index].mailbox_to + ') <=> ' + uuid + ' [Skipped]');
-                                        this.skipped++;
-                                    }
-                                }).catch((error) => {
-                                    clearInterval(queueChecker);
-                                    this.$store.commit('addLine', 'Failed to migrate (' + this.mailboxes[index].mailbox_from + ' => ' + this.mailboxes[index].mailbox_to + ') <=> ' + uuid + ' [Skipped]');
-                                    this.skipped++;
-                                    console.log(error);
-                                });
-                        }, 3000);
-                    }).catch((error) => {
-                        this.$store.commit('addLine', 'Failed to migrate (' + this.mailboxes[index].mailbox_from + ' => ' + this.mailboxes[index].mailbox_to + ') [Skipped]');
-                        this.skipped++;
-                        console.log(error);
-                    });
-                }
+                this.migrateMailboxes();
             },
             abortMigration () {
                 this.isOnProcess = false;
                 this.abortDialog = false;
-                this.$store.commit('addLine', 'Migration aborted ...');
-                this.$notify({
-                    title: 'Migration',
-                    message: 'Migration aborted',
-                    type: 'error'
+
+                if (this.queue.length === 0) return;
+
+                this.$http.post('http://localhost:8080/imapsync/abort', {
+                    queue: JSON.stringify(this.queue)
+                })
+                .then((response) => {
+                    if (!response) return;
+
+                    this.$store.commit('addLine', 'Migration aborted ...');
+                    this.$notify({
+                        title: 'Migration',
+                        message: 'Migration aborted',
+                        type: 'error'
+                    });
+                })
+                .catch((error) => {
+                    this.$store.commit('addLine', 'Something went wrong ?!');
+                    console.log(error);
                 });
+
+                // Clear queue
+                this.queue = [];
             },
             completeMigration () {
-                if (this.queue === 0 && this.finished === 0 && this.skipped === 0) return false;
-
-                this.$store.commit('addLine', 'Total: ' + this.total + ' | Queue: ' + this.queue + ' | Finished: ' + this.finished + ' | Skipped: ' + this.skipped);
+                this.$store.commit('addLine', 'Total: ' + this.total + ' | Finished: ' + this.finished + ' | Skipped: ' + this.skipped);
 
                 if (this.mailboxes.length === 0) {
+                    this.$notify({
+                        title: 'Migration',
+                        message: 'Migration finished',
+                        type: 'success'
+                    });
+
+                    this.$store.commit('addLine', 'Finished! Click on console to view the LOG.');
+
                     this.isOnProcess = false;
                     this.abortDialog = false;
                     this.resetCounter();
@@ -226,7 +297,7 @@
                 this.total = 0;
                 this.finished = 0;
                 this.skipped = 0;
-                this.queue = 0;
+                this.queue = [];
             }
         }
     };

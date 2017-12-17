@@ -1,8 +1,22 @@
 <template>
         <div class="shell-wrap">
-            <ul class="shell-body" id="shell_container" v-smooth-scroll>
+            <ul class="shell-body" id="shell_container" @click="dialogVisible = true" v-smooth-scroll>
                 <li v-for="item in items" v-html="item"></li>
             </ul>
+
+            <el-dialog
+                    title="LOG"
+                    :visible.sync="dialogVisible"
+                    width="80%"
+                    :fullscreen="true">
+                <span>
+                    <ul class="shell-body" style="height: 100%">
+                        <li v-for="item in items" v-html="item"></li>
+                    </ul>
+                </span>
+                <span slot="footer" class="dialog-footer">
+              </span>
+            </el-dialog>
         </div>
 </template>
 
@@ -17,17 +31,10 @@
                 }
             }
         },
-        mounted () {
-            this.scrollToEnd();
-        },
-        updated () {
-            this.scrollToEnd();
-        },
-        methods: {
-            scrollToEnd: function () {
-                // let container = this.$el.querySelector('#shell_container');
-                // container.scrollTop = container.scrollHeight;
-            }
+        data () {
+          return {
+              dialogVisible: false
+          };
         }
     };
 
@@ -74,6 +81,16 @@
     });
 </script>
 <style>
+    .el-dialog.is-fullscreen{
+        background: #141414;
+        margin-top: 10vh;
+        height: 85%;
+    }
+
+    .el-dialog__header span{
+        color: #ccc;
+    }
+
     .shell-wrap {
         width: 500px;
         height: 70px;
