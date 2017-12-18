@@ -1,11 +1,9 @@
 #TOOD List Frontend
-- About Modal
+- About Electron/ImapSync Client
+- Revision number
+- Preloader
 - SingleInstance
 - Auto-Updater
-- Aborting of Migration (Save all sessions in on array an make an request to kill the session)
-- Total sum fix on multiple mailboxes and aborting
 - Filemanager for imports by txt or csv
-- Create a logo with background from app and fontawesomes heart-o
-#TODO List Backen
+#TODO List Backend
 - GC 48h old files
-- Method to remove and kill session by uuid

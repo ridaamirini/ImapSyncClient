@@ -20,7 +20,7 @@
   },
   "build": {
     "productName": "ImapSync Client",
-    "appId": "org.simulatedgreg.electron-vue",
+    "appId": "de.ridasmartapps.imapsyncclient",
     "directories": {
       "output": "build"
     },

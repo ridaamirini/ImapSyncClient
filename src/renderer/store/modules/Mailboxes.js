@@ -3,24 +3,7 @@
  */
 
 const state = {
-    list: [
-        {
-            mailbox_from: 'test1',
-            password_from: 'secret1',
-            imap_from: 'test1.lamiral.info',
-            mailbox_to: 'test2',
-            password_to: 'secret2',
-            imap_to: 'test2.lamiral.info'
-        },
-        {
-            mailbox_from: 'test2',
-            password_from: 'secret2',
-            imap_from: 'test2.lamiral.info',
-            mailbox_to: 'test1',
-            password_to: 'secret1',
-            imap_to: 'test1.lamiral.info'
-        }
-    ]
+    list: []
 };
 
 const mutations = {
