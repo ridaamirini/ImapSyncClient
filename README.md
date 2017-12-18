@@ -8,6 +8,16 @@
 
 > It's only an Internet Message Access Protocol Synchronization Client
 
+## Overview
+
+ImapSync Client is an Email IMAP tool for syncing, copying and migrating email
+mailboxes between two imap servers, one way, and without duplicates.
+
+## Download
+Download the latest version from the [releases](https://github.com/ridaamirini/imapsyncclient/releases/latest) page.
+
+## Demo
+
 ![image](https://github.com/ridaamirini/ImapSyncClient/blob/dev/docs/media/preview.gif?raw=true)
 
 #### Build Setup
@@ -27,7 +37,20 @@ npm run build
 npm run lint
 
 ```
+## Thanks
+ ### Front-End
+ - [Vue.js](https://github.com/vuejs/vue)
+ - [Electron](https://github.com/electron/electron)
+ - [electron-vue](https://github.com/SimulatedGREG/electron-vue)
+ - [Element](https://github.com/ElemeFE/element)
+ #### API 
+  - [imapsync](https://github.com/imapsync/imapsync)
+  - [Slim](https://github.com/slimphp/Slim)
 
----
+## TODO
+- [ ] Import Mailboxes from CSV or *.txt
+- [ ] Mailboxes Rules (--exclude etc..)
 
-This project was generated with [electron-vue](https://github.com/SimulatedGREG/electron-vue)@[142eea4](https://github.com/SimulatedGREG/electron-vue/tree/142eea44aa50fdead91a469daedfcff04308c3fc) using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).
+## License
+
+ImapSync Client is licensed under the [MIT License](LICENSE)
