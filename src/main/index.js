@@ -27,10 +27,7 @@ function createWindow () {
     titleBarStyle: 'hiddenInset',
     resizable: false,
     fullscreen: false,
-    backgroundColor: '#272d33',
-    'web-preferences': {
-        'web-security': false
-    }
+    backgroundColor: '#272d33'
   });
 
   mainWindow.loadURL(winURL);

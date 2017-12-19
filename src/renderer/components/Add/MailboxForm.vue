@@ -20,7 +20,7 @@
                         <el-input v-model="form.mailbox_to" placeholder="to@example.com"></el-input>
                     </el-form-item>
                     <el-form-item label="Password to" prop="password_to">
-                        <el-input v-model="form.password_to" placeholder="Password"></el-input>
+                        <el-input v-model="form.password_to" type="password" placeholder="Password"></el-input>
                     </el-form-item>
                     <el-form-item label="IMAP Server to" prop="imap_to">
                         <el-input v-model="form.imap_to" placeholder="Server IP or Domain"></el-input>
@@ -255,6 +255,9 @@
             abortMigration () {
                 this.isOnProcess = false;
                 this.abortDialog = false;
+
+                // @todo fix abort on runtime from successfully request
+              console.log(this.queue.length);
 
                 if (this.queue.length === 0) return;
 

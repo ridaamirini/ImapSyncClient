@@ -1,4 +1,5 @@
 #TOOD List Frontend
+- Window Draggable
 - About Electron/ImapSync Client
 - Revision number
 - Preloader
