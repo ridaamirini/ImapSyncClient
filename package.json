@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "author": "Rida Am. <rida-amirini@gmx.de>",
   "description": "An electron-vue project",
-  "license": "MIT License",
+  "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
