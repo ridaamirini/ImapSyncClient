@@ -46,6 +46,8 @@ npm run lint
  #### API 
   - [imapsync](https://github.com/imapsync/imapsync)
   - [Slim](https://github.com/slimphp/Slim)
+ ### Design inspired by
+ - [imapsync.love](http://imapsync.love)
 
 ## TODO
 - [ ] Import Mailboxes from CSV or *.txt
