@@ -26,7 +26,11 @@ function createWindow () {
     frame: false,
     titleBarStyle: 'hiddenInset',
     resizable: false,
-    fullscreen: false
+    fullscreen: false,
+    backgroundColor: '#272d33',
+    'web-preferences': {
+        'web-security': false
+    }
   });
 
   mainWindow.loadURL(winURL);

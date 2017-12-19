@@ -39,7 +39,7 @@
             </el-col>
             <el-col :span="4">
                 <el-button type="primary" v-show="!isOnProcess" icon="el-icon-refresh" @click="startMigration" :disabled="!(mailboxes.length > 0)">Migrate</el-button>
-                <el-button type="danger" v-show="isOnProcess" icon="el-icon-close" @click="abortMigration">Abort</el-button>
+                <el-button type="danger" v-show="isOnProcess" icon="el-icon-close" @click="abortDialog = true">Abort</el-button>
             </el-col>
         </el-row>
         <el-dialog
@@ -110,7 +110,8 @@
                     imap_to: [
                         { required: true, message: 'Please enter IMAP destination server name or IP address', trigger: 'change' }
                     ]
-                }
+                },
+                api: '5.39.26.202'
             };
         },
         methods: {
@@ -153,7 +154,7 @@
 
                 this.$store.commit('addLine', 'Request to migrate (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ')');
 
-                this.$http.post('http://localhost:8080/imapsync', {
+                this.$http.post('http://' + this.api + '/imapsync', {
                     host1: mailbox.imap_from,
                     user1: mailbox.mailbox_from,
                     password1: mailbox.password_from,
@@ -165,7 +166,7 @@
                     this.$store.commit('addLine', 'Started to migrate (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') <=> ' + uuid + ' [Emitted]');
 
                     let queueChecker = setInterval(() => {
-                        this.$http.get('http://localhost:8080/imapsync/queue/' + uuid)
+                        this.$http.get('http://' + this.api + '/imapsync/queue/' + uuid)
                             .then((response) => {
                                 if (response.data.status === 'queue' && this.queue.map(el => el.uuid).indexOf(uuid) === -1) {
                                     this.queue.push(response.data);
@@ -204,6 +205,7 @@
                                     this.queue.splice(this.queue.map(el => el.uuid).indexOf(uuid), 1);
 
                                     this.skipped++;
+                                    this.completeMigration(true);
                                     // Tick next Mailbox
                                     this.migrateMailboxes();
                                 }
@@ -219,6 +221,7 @@
                             this.queue.splice(this.queue.map(el => el.uuid).indexOf(uuid), 1);
 
                             this.skipped++;
+                            this.completeMigration(true);
                             // Tick next Mailbox
                             this.migrateMailboxes();
 
@@ -231,6 +234,7 @@
                     this.$store.commit('removeMailbox', index);
 
                     this.skipped++;
+                    this.completeMigration(true);
                     // Tick next Mailbox
                     this.migrateMailboxes();
                     console.log(error);
@@ -254,7 +258,7 @@
 
                 if (this.queue.length === 0) return;
 
-                this.$http.post('http://localhost:8080/imapsync/abort', {
+                this.$http.post('http://' + this.api + '/imapsync/abort', {
                     queue: JSON.stringify(this.queue)
                 })
                 .then((response) => {
@@ -275,17 +279,22 @@
                 // Clear queue
                 this.queue = [];
             },
-            completeMigration () {
+            completeMigration (error = false) {
                 this.$store.commit('addLine', 'Total: ' + this.total + ' | Finished: ' + this.finished + ' | Skipped: ' + this.skipped);
 
                 if (this.mailboxes.length === 0) {
                     this.$notify({
                         title: 'Migration',
-                        message: 'Migration finished',
-                        type: 'success'
+                        message: error ? 'Migration stopped' : 'Migration finished',
+                        type: error ? 'error' : 'success'
                     });
 
-                    this.$store.commit('addLine', 'Finished! Click on console to view the LOG.');
+                    if (error) {
+                        this.$store.commit('addLine', 'Stopped! Click on console to view the LOG.');
+                    }
+                    else {
+                        this.$store.commit('addLine', 'Finished! Click on console to view the LOG.');
+                    }
 
                     this.isOnProcess = false;
                     this.abortDialog = false;

@@ -1,7 +1,7 @@
 import app from '../../../../package.json';
 import git from 'git-rev-sync';
 
-let version = app.version;
+let version = app.version + '.' + git.short();
 
 const state = {
     output: ['Welcome to imapsync <i class="fa fa-heart-o" style="color: red;"></i>', 'Version ' + version]
