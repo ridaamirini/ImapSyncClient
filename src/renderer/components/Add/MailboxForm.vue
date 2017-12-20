@@ -170,11 +170,18 @@
                             .then((response) => {
                                 if (response.data.status === 'queue' && this.queue.map(el => el.uuid).indexOf(uuid) === -1) {
                                     this.queue.push(response.data);
-                                    if (!this.isOnProcess) this.abortMigration();
+                                    if (!this.abortMessage()) {
+                                      // Abort with queue
+                                      clearInterval(queueChecker);
+                                      return this.abortMigration();
+                                    }
                                 }
                                 // Stop on ABORT
+                                // Abort without Queue (because of request response directly back without queue)
+                                // That means something happens went wrong
                                 if (!this.isOnProcess) {
                                     clearInterval(queueChecker);
+                                    this.abortMessage();
                                     return;
                                 }
                                 if (response.data.status === 'successful') {
@@ -266,13 +273,7 @@
                 })
                 .then((response) => {
                     if (!response) return;
-
-                    this.$store.commit('addLine', 'Migration aborted ...');
-                    this.$notify({
-                        title: 'Migration',
-                        message: 'Migration aborted',
-                        type: 'error'
-                    });
+                    this.abortMessage();
                 })
                 .catch((error) => {
                     this.$store.commit('addLine', 'Something went wrong ?!');
@@ -281,6 +282,14 @@
 
                 // Clear queue
                 this.queue = [];
+            },
+            abortMessage () {
+              this.$store.commit('addLine', 'Migration aborted ...');
+              this.$notify({
+                title: 'Migration',
+                message: 'Migration aborted',
+                type: 'error'
+              });
             },
             completeMigration (error = false) {
                 this.$store.commit('addLine', 'Total: ' + this.total + ' | Finished: ' + this.finished + ' | Skipped: ' + this.skipped);

@@ -19,16 +19,31 @@ function createWindow () {
   /**
    * Initial window options
    */
-  mainWindow = new BrowserWindow({
+
+  // Linux & Windows
+  let options = {
     height: 680,
-    useContentSize: true,
     width: 1050,
-    frame: false,
-    titleBarStyle: 'hiddenInset',
+    useContentSize: true,
     resizable: false,
     fullscreen: false,
     backgroundColor: '#272d33'
-  });
+  };
+
+  if (process.platform === 'darwin') {
+    options = {
+      height: 680,
+      width: 1050,
+      useContentSize: true,
+      resizable: false,
+      frame: true,
+      titleBarStyle: 'hiddenInset',
+      fullscreen: false,
+      backgroundColor: '#272d33'
+    };
+  }
+
+  mainWindow = new BrowserWindow(options);
 
   mainWindow.loadURL(winURL);
 
