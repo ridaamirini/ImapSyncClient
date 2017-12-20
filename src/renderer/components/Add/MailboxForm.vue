@@ -263,9 +263,6 @@
                 this.isOnProcess = false;
                 this.abortDialog = false;
 
-                // @todo fix abort on runtime from successfully request
-              console.log(this.queue.length);
-
                 if (this.queue.length === 0) return;
 
                 this.$http.post('http://' + this.api + '/imapsync/abort', {
