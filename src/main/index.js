@@ -22,6 +22,7 @@ function createWindow () {
 
   // Linux & Windows
   let options = {
+    title: 'ImapSync Client',
     height: 680,
     width: 1050,
     useContentSize: true,
@@ -32,6 +33,7 @@ function createWindow () {
 
   if (process.platform === 'darwin') {
     options = {
+      title: 'ImapSync Client',
       height: 680,
       width: 1050,
       useContentSize: true,
