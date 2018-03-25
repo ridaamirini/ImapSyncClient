@@ -38,7 +38,7 @@
     import About from './About.vue';
 
     export default {
-        name: 'main',
+        name: 'main-component',
         components: { QueueTable, MailboxForm, About },
         data () {
             return {
