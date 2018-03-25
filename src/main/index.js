@@ -59,6 +59,16 @@ function createWindow () {
   webFrame.setLayoutZoomLevelLimits(0, 0); */
 }
 
+// Single Instance
+let instanceToQuit = app.makeSingleInstance(function (commandLine, workingDirectory) {
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+  }
+});
+
+if (instanceToQuit) app.quit();
+
 app.on('ready', createWindow);
 
 app.on('window-all-closed', () => {
