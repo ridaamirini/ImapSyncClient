@@ -1,4 +1,4 @@
-import app from '../../../../package.json';
+// import app from '../../../../package.json';
 import revision from '../../../../revision.json';
 
 // let version = app.version + '.' + revision.rev;
