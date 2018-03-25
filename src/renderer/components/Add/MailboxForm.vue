@@ -59,6 +59,7 @@
 <script>
     import ShellAlikeBox from '../ShellAlikeBox.vue';
     import EventBus from '../../store/modules/EventBus.js';
+    import auth from '../../../../auth.json';
 
     export default {
         name: 'mailbox-form',
@@ -69,6 +70,9 @@
                 get () {
                     return this.$store.state.Mailboxes.list;
                 }
+            },
+            api () {
+                return auth.api;
             }
         },
         updated () {
@@ -110,8 +114,7 @@
                     imap_to: [
                         { required: true, message: 'Please enter IMAP destination server name or IP address', trigger: 'change' }
                     ]
-                },
-                api: '5.39.26.202'
+                }
             };
         },
         methods: {

@@ -1,20 +1,27 @@
 <template>
     <div id="wrapper">
-        <h1 class="noselect logo" @click="aboutShow = !aboutShow">
+        <h1 class="noselect logo">
             <span style="color:#30bfbf;">imap</span><span style="color: #A6E22E;">sync</span>
             <span style="color:#F9266C"> <i class="fa fa-heart-o fa-beat" aria-hidden="true"></i></span>
+            <span class="pull-right" style="font-size: 20px;">
+                <el-button-group>
+                  <el-button type="primary" icon="el-icon-info" @click="aboutShow = true"></el-button>
+                  <el-button type="primary" icon="el-icon-share" disabled></el-button>
+                  <el-button type="primary" icon="el-icon-upload2" title="Coming soon" disabled></el-button>
+                </el-button-group>
+            </span>
         </h1>
         <div class="container">
             <el-row :gutter="24">
-                <!--<el-col :span="4" :offset="21" class="noselect">
-                    <el-switch
-                            style="display: block"
-                            v-model="multipleMailboxes"
-                            active-color="#13ce66"
-                            inactive-color="#ff4949"
-                            active-text="Mailboxes">
-                    </el-switch>
-                </el-col>-->
+                <!--<el-col :span="8" :offset="20" class="noselect">
+                  <el-switch
+                           style="display: block"
+                           v-model="multipleMailboxes"
+                           active-color="#13ce66"
+                           inactive-color="#ff4949"
+                           active-text="Mailboxes">
+                   </el-switch>
+               </el-col>-->
             </el-row>
             <el-row>
                 <el-col :span="24">
@@ -28,7 +35,7 @@
             </el-row>
         </div>
 
-        <!--<about :visible="aboutShow"></about>-->
+        <about v-on:about-hide="aboutShow = false" :visible.sync="aboutShow"></about>
     </div>
 </template>
 
@@ -102,7 +109,7 @@
     }
 
     .logo {
-        cursor: pointer;
+        /*cursor: pointer;*/
     }
 
     .fa-beat {
