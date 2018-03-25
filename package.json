@@ -4,7 +4,7 @@
   "productName": "ImapSync Client",
   "version": "0.0.1",
   "author": "Rida Am. <rida-amirini@gmx.de>",
-  "description": "An electron-vue project",
+  "description": "It's only an Internet Message Access Protocol Synchronization Client",
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
@@ -65,8 +65,8 @@
     },
     "linux": {
       "icon": "build/icons",
-      "executableName": "githoard",
-      "synopsis": "Imapy Sync",
+      "executableName": "imapsyncclient",
+      "synopsis": "ImapSync Client",
       "category": "Development",
       "target": [
         "AppImage",
