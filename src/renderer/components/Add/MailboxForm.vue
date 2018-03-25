@@ -192,7 +192,7 @@
 
                                     this.$store.commit('addLine', '==== LOG (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') ====');
                                     this.$store.commit('addLine', response.data.log);
-                                    this.$store.commit('addLine', '==== LOG Ended ====');
+                                    this.$store.commit('addLine', '==== LOG End ====');
                                     this.$store.commit('addLine', mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ' <=> ' + uuid + ' [Finished]');
                                     this.$store.commit('removeMailbox', index);
                                     this.queue.splice(this.queue.map(el => el.uuid).indexOf(uuid), 1);
