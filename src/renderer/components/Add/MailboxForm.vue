@@ -20,7 +20,7 @@
                         <el-input v-model="form.mailbox_to" placeholder="to@example.com"></el-input>
                     </el-form-item>
                     <el-form-item label="Password to" prop="password_to">
-                        <el-input v-model="form.password_to" placeholder="Password"></el-input>
+                        <el-input v-model="form.password_to" type="password" placeholder="Password"></el-input>
                     </el-form-item>
                     <el-form-item label="IMAP Server to" prop="imap_to">
                         <el-input v-model="form.imap_to" placeholder="Server IP or Domain"></el-input>
@@ -59,6 +59,7 @@
 <script>
     import ShellAlikeBox from '../ShellAlikeBox.vue';
     import EventBus from '../../store/modules/EventBus.js';
+    import auth from '../../../../auth.json';
 
     export default {
         name: 'mailbox-form',
@@ -69,6 +70,9 @@
                 get () {
                     return this.$store.state.Mailboxes.list;
                 }
+            },
+            api () {
+                return auth.api;
             }
         },
         updated () {
@@ -110,8 +114,7 @@
                     imap_to: [
                         { required: true, message: 'Please enter IMAP destination server name or IP address', trigger: 'change' }
                     ]
-                },
-                api: '5.39.26.202'
+                }
             };
         },
         methods: {
@@ -170,11 +173,18 @@
                             .then((response) => {
                                 if (response.data.status === 'queue' && this.queue.map(el => el.uuid).indexOf(uuid) === -1) {
                                     this.queue.push(response.data);
-                                    if (!this.isOnProcess) this.abortMigration();
+                                    if (!this.abortMessage()) {
+                                      // Abort with queue
+                                      clearInterval(queueChecker);
+                                      return this.abortMigration();
+                                    }
                                 }
                                 // Stop on ABORT
+                                // Abort without Queue (because of request response directly back without queue)
+                                // That means something happens or went wrong
                                 if (!this.isOnProcess) {
                                     clearInterval(queueChecker);
+                                    this.abortMessage();
                                     return;
                                 }
                                 if (response.data.status === 'successful') {
@@ -263,13 +273,7 @@
                 })
                 .then((response) => {
                     if (!response) return;
-
-                    this.$store.commit('addLine', 'Migration aborted ...');
-                    this.$notify({
-                        title: 'Migration',
-                        message: 'Migration aborted',
-                        type: 'error'
-                    });
+                    this.abortMessage();
                 })
                 .catch((error) => {
                     this.$store.commit('addLine', 'Something went wrong ?!');
@@ -278,6 +282,14 @@
 
                 // Clear queue
                 this.queue = [];
+            },
+            abortMessage () {
+              this.$store.commit('addLine', 'Migration aborted ...');
+              this.$notify({
+                title: 'Migration',
+                message: 'Migration aborted',
+                type: 'error'
+              });
             },
             completeMigration (error = false) {
                 this.$store.commit('addLine', 'Total: ' + this.total + ' | Finished: ' + this.finished + ' | Skipped: ' + this.skipped);

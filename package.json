@@ -1,11 +1,14 @@
 {
-  "name": "imapsynclient",
+  "name": "imapsyncclient",
+  "displayName": "ImapSync Client",
+  "productName": "ImapSync Client",
   "version": "0.0.1",
   "author": "Rida Am. <rida-amirini@gmx.de>",
   "description": "An electron-vue project",
-  "license": "MIT License",
+  "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
+    "revision": "node .electron-vue/revision.js",
     "build": "node .electron-vue/build.js && electron-builder",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
@@ -25,7 +28,10 @@
       "output": "build"
     },
     "files": [
-      "dist/electron/**/*"
+      "dist/electron/**/*",
+      "package.json",
+      "revision.json",
+      "auth.json"
     ],
     "dmg": {
       "contents": [
@@ -46,10 +52,26 @@
       "icon": "build/icons/icon.icns"
     },
     "win": {
-      "icon": "build/icons/icon.ico"
+      "icon": "build/icons/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ]
     },
     "linux": {
-      "icon": "build/icons"
+      "icon": "build/icons",
+      "executableName": "githoard",
+      "synopsis": "Imapy Sync",
+      "category": "Development",
+      "target": [
+        "AppImage",
+        "deb"
+      ]
     }
   },
   "dependencies": {
