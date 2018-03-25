@@ -178,7 +178,7 @@
                                 }
                                 // Stop on ABORT
                                 // Abort without Queue (because of request response directly back without queue)
-                                // That means something happens went wrong
+                                // That means something happens or went wrong
                                 if (!this.isOnProcess) {
                                     clearInterval(queueChecker);
                                     this.abortMessage();
