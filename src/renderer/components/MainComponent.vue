@@ -5,9 +5,10 @@
             <span style="color:#F9266C"> <i class="fa fa-heart-o fa-beat" aria-hidden="true"></i></span>
             <span class="pull-right" style="font-size: 20px;">
                 <el-button-group>
-                  <el-button type="primary" icon="el-icon-info" @click="aboutShow = true"></el-button>
-                  <el-button type="primary" icon="el-icon-share" disabled></el-button>
+                  <el-button type="primary" icon="el-icon-download" title="Coming soon" disabled></el-button>
                   <el-button type="primary" icon="el-icon-upload2" title="Coming soon" disabled></el-button>
+                  <el-button type="primary" icon="el-icon-share" title="Coming soon" disabled></el-button>
+                  <el-button type="primary" icon="el-icon-info" @click="aboutShow = true"></el-button>
                 </el-button-group>
             </span>
         </h1>
