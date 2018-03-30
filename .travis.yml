@@ -13,17 +13,12 @@ matrix:
       language: generic
 
 cache:
-  yarn: true
   directories:
   - node_modules
   - $HOME/.cache/electron
   - $HOME/.cache/electron-builder
 
 before_install:
-  - sudo apt-key adv --keyserver pgp.mit.edu --recv D101F7899D41F3C3
-  - echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-  - sudo apt-get update -qq
-  - sudo apt-get install -y -qq yarn
   - |
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
       mkdir -p /tmp/git-lfs && curl -L https://github.com/github/git-lfs/releases/download/v2.3.1/git-lfs-$([ "$TRAVIS_OS_NAME" == "linux" ] && echo "linux" || echo "darwin")-amd64-2.3.1.tar.gz | tar -xz -C /tmp/git-lfs --strip-components 1
