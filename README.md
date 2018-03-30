@@ -1,4 +1,4 @@
-# ImapSyncClient
+# ImapSync Client [![Build Status](https://travis-ci.org/ridaamirini/ImapSyncClient.svg?branch=master)](https://travis-ci.org/ridaamirini/ImapSyncClient)
 
 [![forthebadge](http://forthebadge.com/images/badges/built-with-love.svg)](http://forthebadge.com)
 [![forthebadge](http://forthebadge.com/images/badges/uses-html.svg)](http://forthebadge.com)
