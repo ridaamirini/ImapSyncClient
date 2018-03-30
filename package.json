@@ -9,7 +9,7 @@
   "main": "./dist/electron/main.js",
   "scripts": {
     "revision": "node .electron-vue/revision.js",
-    "release": "build",
+    "release": "node .electron-vue/build.js && electron-builder",
     "build": "node .electron-vue/build.js && electron-builder",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
