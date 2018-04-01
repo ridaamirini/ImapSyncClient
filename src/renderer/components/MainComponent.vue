@@ -1,7 +1,7 @@
 <template>
     <div id="wrapper">
         <h1 class="noselect logo">
-            <span style="color:#30bfbf;">imap</span><span style="color: #A6E22E;">sync</span>
+            <span style="color:#30bfbf;">imap</span><span style="color: #A6E22E;">sync 3</span>
             <span style="color:#F9266C"> <i class="fa fa-heart-o fa-beat" aria-hidden="true"></i></span>
             <span class="pull-right" style="font-size: 20px;">
                 <el-button-group>
