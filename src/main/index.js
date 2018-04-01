@@ -1,6 +1,7 @@
 'use strict';
 
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, dialog } from 'electron';
+import { autoUpdater } from 'electron-updater';
 
 /**
  * Set `__static` path to static files in production
@@ -20,16 +21,16 @@ function createWindow () {
    * Initial window options
    */
 
-  // Linux & Windows
+    // Linux & Windows
   let options = {
-    title: 'ImapSync Client',
-    height: 680,
-    width: 1050,
-    useContentSize: true,
-    resizable: false,
-    fullscreen: false,
-    backgroundColor: '#272d33'
-  };
+      title: 'ImapSync Client',
+      height: 680,
+      width: 1050,
+      useContentSize: true,
+      resizable: false,
+      fullscreen: false,
+      backgroundColor: '#272d33'
+    };
 
   if (process.platform === 'darwin') {
     options = {
@@ -69,7 +70,7 @@ let instanceToQuit = app.makeSingleInstance(function (commandLine, workingDirect
 
 if (instanceToQuit) app.quit();
 
-app.on('ready', createWindow);
+// app.on('ready', createWindow);
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -91,14 +92,28 @@ app.on('activate', () => {
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
  */
 
-/*
-import { autoUpdater } from 'electron-updater'
+autoUpdater.logger = require('electron-log');
+autoUpdater.logger.transports.file.level = 'info';
 
 autoUpdater.on('update-downloaded', () => {
-  autoUpdater.quitAndInstall()
-})
+  if (process.env.NODE_ENV === 'production') {
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Update',
+      message: 'Found updates, do you want update now?',
+      buttons: ['Update', 'No']
+    }, (buttonIndex) => {
+      if (buttonIndex === 0) {
+        const isSilent = true;
+        const isForceRunAfter = true;
+        autoUpdater.quitAndInstall(isSilent, isForceRunAfter);
+      }
+    });
+  }
+});
 
 app.on('ready', () => {
-  if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
-})
- */
+  if (process.env.NODE_ENV === 'production') { autoUpdater.checkForUpdates(); }
+
+  createWindow();
+});
