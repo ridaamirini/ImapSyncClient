@@ -1,7 +1,7 @@
 'use strict';
 
-import { app, BrowserWindow, dialog } from 'electron';
-import { autoUpdater } from 'electron-updater';
+import { app, BrowserWindow, ipcMain } from 'electron';
+import { checkForUpdates } from './updater';
 
 /**
  * Set `__static` path to static files in production
@@ -23,18 +23,19 @@ function createWindow () {
 
     // Linux & Windows
   let options = {
-      title: 'ImapSync Client',
+      title: app.getName(),
       height: 680,
       width: 1050,
       useContentSize: true,
       resizable: false,
       fullscreen: false,
-      backgroundColor: '#272d33'
+      backgroundColor: '#272d33',
+      show: false
     };
 
   if (process.platform === 'darwin') {
     options = {
-      title: 'ImapSync Client',
+      title: app.getName(),
       height: 680,
       width: 1050,
       useContentSize: true,
@@ -42,7 +43,8 @@ function createWindow () {
       frame: true,
       titleBarStyle: 'hiddenInset',
       fullscreen: false,
-      backgroundColor: '#272d33'
+      backgroundColor: '#272d33',
+      show: false
     };
   }
 
@@ -52,6 +54,10 @@ function createWindow () {
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
   });
 
   // @todo Disable Zoom in/out  with mouse and pinch
@@ -84,36 +90,6 @@ app.on('activate', () => {
   }
 });
 
-/**
- * Auto Updater
- *
- * Uncomment the following code below and install `electron-updater` to
- * support auto updating. Code Signing with a valid certificate is required.
- * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
- */
+app.on('ready', createWindow);
 
-autoUpdater.logger = require('electron-log');
-autoUpdater.logger.transports.file.level = 'info';
-
-autoUpdater.on('update-downloaded', () => {
-  if (process.env.NODE_ENV === 'production') {
-    dialog.showMessageBox({
-      type: 'info',
-      title: 'Update',
-      message: 'Found updates, do you want update now?',
-      buttons: ['Update', 'No']
-    }, (buttonIndex) => {
-      if (buttonIndex === 0) {
-        const isSilent = true;
-        const isForceRunAfter = true;
-        autoUpdater.quitAndInstall(isSilent, isForceRunAfter);
-      }
-    });
-  }
-});
-
-app.on('ready', () => {
-  if (process.env.NODE_ENV === 'production') { autoUpdater.checkForUpdates(); }
-
-  createWindow();
-});
+ipcMain.once('check-update', checkForUpdates);
