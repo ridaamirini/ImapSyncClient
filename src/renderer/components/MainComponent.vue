@@ -1,7 +1,7 @@
 <template>
     <div id="wrapper">
         <h1 class="noselect logo">
-            <span style="color:#30bfbf;">imap</span><span style="color: #A6E22E;">sync 3</span>
+            <span style="color:#30bfbf;">imap</span><span style="color: #A6E22E;">sync</span>
             <span style="color:#F9266C"> <i class="fa fa-heart-o fa-beat" aria-hidden="true"></i></span>
             <span class="pull-right" style="font-size: 20px;">
                 <el-button-group>
@@ -37,7 +37,7 @@
             </el-row>
         </div>
 
-        <about v-on:about-hide="aboutShow = false" :visible.sync="aboutShow" :updateAvailable="updateAvailable"></about>
+        <about v-on:about-hide="aboutShow = false" v-on:update-client="handleUpdate" :visible.sync="aboutShow" :updateAvailable="updateAvailable"></about>
     </div>
 </template>
 
@@ -45,6 +45,7 @@
     import QueueTable from './QueueTable/QueueTable.vue';
     import MailboxForm from './Add/MailboxForm.vue';
     import About from './About.vue';
+    import { Loading } from 'element-ui';
 
     export default {
         name: 'main-component',
@@ -67,7 +68,7 @@
             }
           );
 
-          // this.$electron.ipcRenderer.send('check-update');
+          this.$electron.ipcRenderer.send('check-update');
         },
         data () {
             return {
@@ -78,11 +79,31 @@
         },
         methods: {
           handleUpdate: function () {
-            console.log('HandelUpdate');
+            this.$confirm('The Application will be restarted. Continue?', 'Update', {
+              confirmButtonText: 'OK',
+              cancelButtonText: 'Cancel',
+              type: 'info'
+            }).then(() => {
+              this.$message({
+                type: 'success',
+                message: 'Update will be downloaded and install. It might take a while.',
+                duration: 3000
+              });
+
+              this.$electron.ipcRenderer.send('download-update');
+
+              Loading.service({
+                fullscreen: false,
+                background: '#272d33',
+                text: 'Downloading ...',
+                lock: true
+              });
+            });
           }
         },
         beforeDestroy () {
           this.$electron.ipcRenderer.removeListener('update-available');
+          this.$off('update-client');
         }
     };
 </script>

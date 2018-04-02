@@ -54,10 +54,14 @@ app.once('browser-window-focus', (event, win) => {
   });
 
   ipcMain.on('download-update', () => {
-    autoUpdater.downloadUpdate();
+    if (process.env.NODE_ENV === 'production') autoUpdater.downloadUpdate();
+  });
+
+  ipcMain.on('check-update-manually', () => {
+    if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates();
   });
 });
 
 export function checkForUpdates () {
-    autoUpdater.checkForUpdates(); // @todo only on ENV
+    if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates();
 }
