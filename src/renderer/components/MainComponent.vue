@@ -5,9 +5,11 @@
             <span style="color:#F9266C"> <i class="fa fa-heart-o fa-beat" aria-hidden="true"></i></span>
             <span class="pull-right" style="font-size: 20px;">
                 <el-button-group>
-                  <el-button type="primary" icon="el-icon-info" @click="aboutShow = true"></el-button>
-                  <el-button type="primary" icon="el-icon-share" disabled></el-button>
-                  <el-button type="primary" icon="el-icon-upload2" title="Coming soon" disabled></el-button>
+                    <el-button type="primary" icon="el-icon-download" title="Coming soon" disabled></el-button>
+                    <el-button type="primary" icon="el-icon-upload2" title="Coming soon" disabled></el-button>
+                    <el-button type="primary" icon="el-icon-share" title="Coming soon" disabled></el-button>
+                    <el-button type="primary" icon="el-icon-info" @click="aboutShow = true"></el-button>
+                    <el-badge v-if="updateAvailable" class="noselect update-badge" :value="updateAvailable ? 1 : 0" :max="1"></el-badge>
                 </el-button-group>
             </span>
         </h1>
@@ -35,7 +37,7 @@
             </el-row>
         </div>
 
-        <about v-on:about-hide="aboutShow = false" :visible.sync="aboutShow"></about>
+        <about v-on:about-hide="aboutShow = false" v-on:update-client="handleUpdate" :visible.sync="aboutShow" :updateAvailable="updateAvailable"></about>
     </div>
 </template>
 
@@ -43,15 +45,65 @@
     import QueueTable from './QueueTable/QueueTable.vue';
     import MailboxForm from './Add/MailboxForm.vue';
     import About from './About.vue';
+    import { Loading } from 'element-ui';
 
     export default {
         name: 'main-component',
         components: { QueueTable, MailboxForm, About },
+        created () {
+          this.$electron.ipcRenderer.on('update-available',
+            (event, { version, currentVersion, releaseNotes }) => {
+              this.$notify.info({
+                title: 'Update',
+                iconClass: 'el-icon-bell',
+                showClose: true,
+                message: 'Hurray! a new update is available. Click me!',
+                duration: 6000,
+                onClick: this.handleUpdate
+              });
+
+              this.updateAvailable = true;
+
+              this.$store.commit('setLatestVersion', version);
+            }
+          );
+
+          this.$electron.ipcRenderer.send('check-update');
+        },
         data () {
             return {
                 aboutShow: false,
-                multipleMailboxes: false
+                multipleMailboxes: false,
+                updateAvailable: false
             };
+        },
+        methods: {
+          handleUpdate: function () {
+            this.$confirm('The Application will be restarted. Continue?', 'Update', {
+              confirmButtonText: 'OK',
+              cancelButtonText: 'Cancel',
+              type: 'info'
+            }).then(() => {
+              this.$message({
+                type: 'success',
+                message: 'Update will be downloaded and install. It might take a while.',
+                duration: 3000
+              });
+
+              this.$electron.ipcRenderer.send('download-update');
+
+              Loading.service({
+                fullscreen: false,
+                background: '#272d33',
+                text: 'Downloading ...',
+                lock: true
+              });
+            });
+          }
+        },
+        beforeDestroy () {
+          this.$electron.ipcRenderer.removeListener('update-available');
+          this.$off('update-client');
         }
     };
 </script>
@@ -115,6 +167,16 @@
     .fa-beat {
         color: red !important;
         animation:fa-beat 5s ease infinite;
+    }
+
+    .update-badge {
+        z-index: 1000;
+    }
+
+    .update-badge sup {
+        position: absolute;
+        top: -20px;
+        right: -10px;
     }
 
     @keyframes fa-beat {

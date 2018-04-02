@@ -1,7 +1,8 @@
-import app from '../../../../package.json';
+// import app from '../../../../package.json';
 import revision from '../../../../revision.json';
 
-let version = app.version + revision.rev;
+// let version = app.version + '.' + revision.rev;
+let version = revision.version;
 
 const state = {
     output: ['Welcome to imapsync <i class="fa fa-heart-o" style="color: red;"></i>', 'Version ' + version]

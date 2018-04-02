@@ -18,6 +18,15 @@
                             Version: v{{version}}
                       </el-col>
                 </el-row>
+                 <el-row :gutter="18">
+                      <el-col :span="16">
+                            Latest version: v{{latest}} &nbsp;
+                          <el-button :type="updateAvailable ? 'success' : 'primary'" size="mini" @click="handleUpdate" round>
+                              {{ updateAvailable ? 'Update' : 'Check for update'}}
+                              <span v-if="checkingForUpdate" class="el-icon-loading"></span>
+                            </el-button>
+                      </el-col>
+                </el-row>
                 <el-row :gutter="12">
                       <el-col :span="12">
                             GitHub: <el-button type="primary" size="mini" @click="openGithub" round>ImapSync Client @GitHub</el-button>
@@ -41,10 +50,27 @@
 
     export default {
         name: 'about',
-        props: ['visible'],
+        props: ['visible', 'updateAvailable'],
+      created: function () {
+        this.$electron.ipcRenderer.on('update-not-available', () => {
+          this.checkingForUpdate = false;
+
+          this.$message({
+            showClose: true,
+            message: 'You already have the latest version.'
+          });
+        });
+
+        this.$electron.ipcRenderer.on('update-available', () => {
+          this.checkingForUpdate = false;
+        });
+      },
         computed: {
           version () {
             return revsion.version;
+          },
+          latest () {
+            return this.$store.state.Version.latest;
           },
           isVisible: {
             get () {
@@ -63,7 +89,8 @@
               'OK': 'el-icon-circle-check',
               'NOTOK': 'el-icon-circle-close',
               'LOADING': 'el-icon-loading'
-            }
+            },
+            checkingForUpdate: false
           };
         },
         methods: {
@@ -93,7 +120,23 @@
           },
           openGithub () {
             this.$electron.shell.openExternal('https://github.com/ridaamirini/ImapSyncClient');
+          },
+          handleUpdate: function () {
+            if (this.updateAvailable) {
+              this.hide();
+              this.$emit('update-client');
+
+              return;
+            }
+
+            this.checkingForUpdate = true;
+
+            this.$electron.ipcRenderer.send('check-update-manually');
           }
+        },
+        beforeDestroy () {
+          this.$electron.ipcRenderer.removeListener('update-not-available');
+          this.$electron.ipcRenderer.removeListener('update-available');
         }
     };
 </script>
