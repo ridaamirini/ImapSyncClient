@@ -57,9 +57,11 @@
 </template>
 
 <script>
+    import log from 'electron-log';
     import ShellAlikeBox from '../ShellAlikeBox.vue';
     import EventBus from '../../store/modules/EventBus.js';
     import auth from '../../../../auth.json';
+
 
     export default {
         name: 'mailbox-form',
@@ -236,6 +238,7 @@
                             this.migrateMailboxes();
 
                             console.log(error);
+                            log.error(error);
                         });
                     }, 3000);
                 }).catch((error) => {
@@ -248,6 +251,7 @@
                     // Tick next Mailbox
                     this.migrateMailboxes();
                     console.log(error);
+                    log.error(error);
                 });
             },
             startMigration () {
@@ -278,6 +282,7 @@
                 .catch((error) => {
                     this.$store.commit('addLine', 'Something went wrong ?!');
                     console.log(error);
+                    log.error(error);
                 });
 
                 // Clear queue
