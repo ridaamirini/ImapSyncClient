@@ -62,7 +62,6 @@
     import EventBus from '../../store/modules/EventBus.js';
     import auth from '../../../../auth.json';
 
-
     export default {
         name: 'mailbox-form',
         props: ['password'],
