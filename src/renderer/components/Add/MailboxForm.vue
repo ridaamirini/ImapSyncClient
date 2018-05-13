@@ -33,9 +33,11 @@
                 <shell-alike-box></shell-alike-box>
             </el-col>
             <el-col :span="4" :offset="16">
-                <el-badge class="noselect" :value="mailboxes.length" :max="9999">
+                <el-badge v-if="mailboxes.length > 0" class="noselect" :value="mailboxes.length" :max="9999">
                     <el-button type="success" icon="el-icon-plus" :disabled="isOnProcess" @click="addMailbox">Add</el-button>
                 </el-badge>
+
+                <el-button v-else type="success" icon="el-icon-plus" :disabled="isOnProcess" @click="addMailbox">Add</el-button>
             </el-col>
             <el-col :span="4">
                 <el-button type="primary" v-show="!isOnProcess" icon="el-icon-refresh" @click="startMigration" :disabled="!(mailboxes.length > 0)">Migrate</el-button>
