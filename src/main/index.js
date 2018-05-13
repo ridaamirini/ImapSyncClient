@@ -60,7 +60,7 @@ function createWindow () {
     mainWindow.show();
   });
 
-  // @todo Disable Zoom in/out  with mouse and pinch
+  // @todo Disable Zoom in/out  with mouse and pinch (Macbook trackpad)
   /* let webFrame = require('electron').webFrame;
   webFrame.setVisualZoomLevelLimits(1,1);
   webFrame.setLayoutZoomLevelLimits(0, 0); */

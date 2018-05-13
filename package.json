@@ -2,7 +2,7 @@
   "name": "imapsyncclient",
   "displayName": "ImapSync Client",
   "productName": "ImapSync Client",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "Rida Am. <rida-amirini@gmx.de>",
   "description": "It's only an Internet Message Access Protocol Synchronization Client",
   "license": "MIT",
