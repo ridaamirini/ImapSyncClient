@@ -48,7 +48,7 @@
                 let start = el.scrollTop;
                 let end = el.scrollHeight;
                 let change = end - start;
-                let increment = 20;
+                let increment = 4;
 
                 function easeInOut (currentTime, start, change, duration) {
                     // by Robert Penner

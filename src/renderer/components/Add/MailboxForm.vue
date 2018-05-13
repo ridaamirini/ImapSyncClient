@@ -173,12 +173,14 @@
                         this.$http.get('http://' + this.api + '/imapsync/queue/' + uuid)
                             .then((response) => {
                                 if (response.data.status === 'queue' && this.queue.map(el => el.uuid).indexOf(uuid) === -1) {
-                                    this.queue.push(response.data);
-                                    if (!this.abortMessage()) {
+                                  this.queue.push(response.data);
+                                  // This code makes no sense to me.
+                                  // @fixme https://github.com/ridaamirini/ImapSyncClient/issues/5
+                                   /* if (!this.abortMessage()) {
                                       // Abort with queue
                                       clearInterval(queueChecker);
                                       return this.abortMigration();
-                                    }
+                                    } */
                                 }
                                 // Stop on ABORT
                                 // Abort without Queue (because of request response directly back without queue)
