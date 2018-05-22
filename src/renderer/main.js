@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import { webFrame } from 'electron';
 import axios from 'axios';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
@@ -23,3 +24,7 @@ new Vue({
   store,
   template: '<App/>'
 }).$mount('#app');
+
+// WebFrame disable zoom in/out
+webFrame.setVisualZoomLevelLimits(1, 1);
+webFrame.setLayoutZoomLevelLimits(0, 0);
