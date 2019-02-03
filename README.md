@@ -43,7 +43,7 @@ npm run lint
  ### Front-End
  - [Vue.js](https://github.com/vuejs/vue)
  - [Electron](https://github.com/electron/electron)
- - [electron-vue](https://github.com/SimulatedGREG/electron-vue)
+ - [ElectronVue](https://github.com/SimulatedGREG/electron-vue)
  - [Element](https://github.com/ElemeFE/element)
  ### Design inspired by
  - [imapsync.love](http://imapsync.love)
