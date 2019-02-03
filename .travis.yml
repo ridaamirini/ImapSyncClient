@@ -19,7 +19,6 @@ cache:
   - $HOME/.cache/electron-builder
 
 before_install:
-  - openssl aes-256-cbc -K $encrypted_720ad0b35daf_key -iv $encrypted_720ad0b35daf_iv -in auth.json.enc -out auth.json -d
   - |
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
       mkdir -p /tmp/git-lfs && curl -L https://github.com/github/git-lfs/releases/download/v2.3.1/git-lfs-$([ "$TRAVIS_OS_NAME" == "linux" ] && echo "linux" || echo "darwin")-amd64-2.3.1.tar.gz | tar -xz -C /tmp/git-lfs --strip-components 1
