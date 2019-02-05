@@ -34,7 +34,7 @@
                 </el-row>
                 <el-row :gutter="12">
                       <el-col :span="12">
-                            API Status: <span class="api-status"><i :class="apiStatus"></i></span>
+                            Imapsync binary: v{{ imapsyncVersion }}
                       </el-col>
                 </el-row>
             </span>
@@ -46,7 +46,6 @@
 </template>
 <script>
     import revsion from '../../../revision';
-    import auth from '../../../auth';
 
     export default {
         name: 'about',
@@ -74,7 +73,6 @@
           },
           isVisible: {
             get () {
-              if (this.visible) this.checkApiHealth();
               return this.visible;
             },
             set (value) {
@@ -84,39 +82,13 @@
         },
         data () {
           return {
-            apiStatus: 'el-icon-loading',
-            health: {
-              'OK': 'el-icon-circle-check',
-              'NOTOK': 'el-icon-circle-close',
-              'LOADING': 'el-icon-loading'
-            },
+            imapsyncVersion: '1.882',
             checkingForUpdate: false
           };
         },
         methods: {
           hide () {
             this.$emit('about-hide');
-          },
-          checkApiHealth () {
-            this.apiStatus = this.health.LOADING;
-
-            setTimeout(() => {
-              this.$http.get('http://' + auth.api + '/imapsync/status')
-                .then((response) => {
-                  let rep = response.data;
-
-                  if (rep.hasOwnProperty('status') && rep.status.success === true) {
-                    this.apiStatus = this.health.OK;
-                    return;
-                  }
-
-                  this.apiStatus = this.health.NOTOK;
-                })
-                .catch((error) => {
-                  // Something went wrong API Health NOT OK
-                  this.apiStatus = this.health.NOTOK;
-                });
-            }, 1000);
           },
           openGithub () {
             this.$electron.shell.openExternal('https://github.com/ridaamirini/ImapSyncClient');
@@ -143,16 +115,5 @@
 <style>
     span.el-dialog__title {
         color: #A6E22E;
-    }
-    span.api-status {
-        font-size: 17px;
-    }
-
-    .el-icon-circle-close {
-        color: red;
-    }
-
-    .el-icon-circle-check {
-        color: green;
     }
 </style>
