@@ -25,6 +25,7 @@ module.exports = {
       'indent': 'off',
       'handle-callback-err': 'off',
       'brace-style': [2, 'stroustrup', { 'allowSingleLine': true }],
-      'semi': ['error', 'always']
+      'semi': ['error', 'always'],
+      'no-trailing-spaces': 'off'
   }
 };
