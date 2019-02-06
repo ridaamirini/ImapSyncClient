@@ -86,12 +86,12 @@
                 failed: 0,
                 abortDialog: false,
                 form: {
-                    mailbox_from: 'test2@ridaamirini.me',
-                    password_from: 'test1.lamiral.info',
-                    imap_from: 'mail.lima-city.de',
-                    mailbox_to: 'test2@ridaamirini.me',
-                    password_to: 'test2.lamiral.info',
-                    imap_to: 'mail.lima-city.de'
+                    mailbox_from: '',
+                    password_from: '',
+                    imap_from: '',
+                    mailbox_to: '',
+                    password_to: '',
+                    imap_to: ''
                 },
                 rules: {
                     mailbox_from: [
