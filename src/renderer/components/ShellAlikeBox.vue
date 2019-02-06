@@ -1,7 +1,7 @@
 <template>
         <div class="shell-wrap">
             <ul class="shell-body" id="shell_container" @click="dialogVisible = true" v-smooth-scroll>
-                <li v-for="item in items" v-html="item"></li>
+                <li v-for="item in items" :style="{color: item.color}" v-html="item.html"></li>
             </ul>
 
             <el-dialog
@@ -11,7 +11,7 @@
                     :fullscreen="true">
                 <span>
                     <ul class="shell-body" style="height: 100%">
-                        <li v-for="item in items" v-html="item"></li>
+                        <li v-for="item in items" :style="{color: item.color}" v-html="item.html"></li>
                     </ul>
                 </span>
                 <span slot="footer" class="dialog-footer">

@@ -1,21 +1,45 @@
 // import app from '../../../../package.json';
 import revision from '../../../../revision.json';
 
-// let version = app.version + '.' + revision.rev;
-let version = revision.version;
+const WelcomeLine = {
+    html: 'Welcome to imapsync <i class="fa fa-heart-o" style="color: red;"></i>',
+    color: null
+};
+const VersionLine = {
+    html: 'Version ' + revision.version,
+    color: null
+};
 
 const state = {
-    output: ['Welcome to imapsync <i class="fa fa-heart-o" style="color: red;"></i>', 'Version ' + version]
+    output: [
+        WelcomeLine,
+        VersionLine
+    ]
 };
 
 const mutations = {
     resetOutput (state, output) {
         state.output = [];
         state.output = state.output.concat(output);
-        state.output.unshift('Welcome to imapsync <i class="fa fa-heart-o" style="color: red;"></i>', 'Version ' + version);
+        state.output.unshift(WelcomeLine, VersionLine);
     },
     addLine (state, line) {
-        state.output.push(line);
+        state.output.push({
+            html: line,
+            color: null
+        });
+    },
+    addWarning (state, line) {
+        state.output.push({
+            html: line,
+            color: 'yellow'
+        });
+    },
+    addError (state, line) {
+        state.output.push({
+            html: line,
+            color: 'red'
+        });
     }
 };
 
@@ -25,6 +49,12 @@ const actions = {
     },
     addLine ({ commit }, payload) {
         commit('addLine', payload);
+    },
+    addWarning ({ commit }, payload) {
+        commit('addWarning', payload);
+    },
+    addError ({ commit }, payload) {
+        commit('addError', payload);
     }
 };
 
