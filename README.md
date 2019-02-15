@@ -1,3 +1,7 @@
+# INFORMATION
+**This version is *OUTDATED*, please wait until the version [1.x](https://github.com/ridaamirini/ImapSyncClient/tree/1.0) is released.**
+
+
 # ImapSync Client [![Build Status](https://travis-ci.org/ridaamirini/ImapSyncClient.svg?branch=master)](https://travis-ci.org/ridaamirini/ImapSyncClient)
 
 [![forthebadge](http://forthebadge.com/images/badges/built-with-love.svg)](http://forthebadge.com)
