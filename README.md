@@ -23,8 +23,8 @@ _**Warning:** Note that versions below 1.0 will not work anymore. Please update 
 ![image](https://github.com/ridaamirini/ImapSyncClient/blob/dev/docs/media/preview.gif?raw=true)
 
 ### Import Mailboxes from CSV :page_facing_up:
-- [Example File *.csv](https://raw.githubusercontent.com/ridaamirini/ImapSyncClient/1.0/docs/example/example.csv)
-- [Example File *.txt](https://raw.githubusercontent.com/ridaamirini/ImapSyncClient/1.0/docs/example/example.txt)
+- [Example file *.csv](https://raw.githubusercontent.com/ridaamirini/ImapSyncClient/1.0/docs/example/example.csv)
+- [Example file *.txt](https://raw.githubusercontent.com/ridaamirini/ImapSyncClient/1.0/docs/example/example.txt)
 
 #### Build Setup
 
