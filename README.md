@@ -50,7 +50,7 @@ npm run lint
 
 ## TODO
 - [x] ~~Remove API dependency~~
-- [ ] Import Mailboxes from CSV or *.txt
+- [x] ~~Import Mailboxes from CSV~~
 - [ ] Mailboxes Rules (--exclude etc..)
 
 ## License
