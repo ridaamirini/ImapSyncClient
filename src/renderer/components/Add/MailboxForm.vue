@@ -59,10 +59,9 @@
 </template>
 
 <script>
-    import log from 'electron-log';
     import ShellAlikeBox from '../ShellAlikeBox.vue';
     import EventBus from '../../store/modules/EventBus.js';
-    import auth from '../../../../auth.json';
+    import { imapsync, abortImapsync } from '../../../main/imapsync';
 
     export default {
         name: 'mailbox-form',
@@ -73,9 +72,6 @@
                 get () {
                     return this.$store.state.Mailboxes.list;
                 }
-            },
-            api () {
-                return auth.api;
             }
         },
         updated () {
@@ -86,9 +82,8 @@
                 isOnProcess: false,
                 labelPosition: 'left',
                 total: 0,
-                queue: [],
                 finished: 0,
-                skipped: 0,
+                failed: 0,
                 abortDialog: false,
                 form: {
                     mailbox_from: '',
@@ -100,22 +95,46 @@
                 },
                 rules: {
                     mailbox_from: [
-                        { required: true, message: 'Please enter a source Mailbox', trigger: 'blur' }
+                        {
+                          required: true,
+                          message: 'Please enter a source Mailbox',
+                          trigger: 'blur'
+                        }
                     ],
                     password_from: [
-                        { required: true, message: 'Please password', trigger: 'blur' }
+                        {
+                          required: true,
+                          message: 'Please password',
+                          trigger: 'blur'
+                        }
                     ],
                     imap_from: [
-                        { required: true, message: 'Please enter IMAP source server name or IP address', trigger: 'change' }
+                        {
+                          required: true,
+                          message: 'Please enter IMAP source server name or IP address',
+                          trigger: 'change'
+                        }
                     ],
                     mailbox_to: [
-                        { required: true, message: 'Please enter a destination Mailbox', trigger: 'blur' }
+                        {
+                          required: true,
+                          message: 'Please enter a destination Mailbox',
+                          trigger: 'blur'
+                        }
                     ],
                     password_to: [
-                        { required: true, message: 'Please password', trigger: 'blur' }
+                        {
+                          required: true,
+                          message: 'Please password',
+                          trigger: 'blur'
+                        }
                     ],
                     imap_to: [
-                        { required: true, message: 'Please enter IMAP destination server name or IP address', trigger: 'change' }
+                        {
+                          required: true,
+                          message: 'Please enter IMAP destination server name or IP address',
+                          trigger: 'change'
+                        }
                     ]
                 }
             };
@@ -148,114 +167,51 @@
                 this.$refs['formSource'].resetFields();
                 this.$refs['formDestination'].resetFields();
             },
-             migrateMailboxes () {
+             migrateMailboxes (index = 0) {
                 // On Abort stop recursion
                 if (!this.isOnProcess) return;
 
-                let index = 0;
-
-                if (this.mailboxes.length === 0 || this.mailboxes[index] === undefined || typeof this.mailboxes[index] !== 'object') return;
+                if (this.mailboxes.length === 0 ||
+                    this.mailboxes[index] === undefined ||
+                    typeof this.mailboxes[index] !== 'object') return;
 
                 let mailbox = this.mailboxes[index];
 
-                this.$store.commit('addLine', 'Request to migrate (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ')');
+                this.$store.commit('addLine', 'Started to migrate (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ')');
 
-                this.$http.post('http://' + this.api + '/imapsync', {
-                    host1: mailbox.imap_from,
-                    user1: mailbox.mailbox_from,
-                    password1: mailbox.password_from,
-                    host2: mailbox.imap_to,
-                    user2: mailbox.mailbox_to,
-                    password2: mailbox.password_to
-                }).then((response) => {
-                    let uuid = response.data.uuid;
-                    this.$store.commit('addLine', 'Started to migrate (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') <=> ' + uuid + ' [Emitted]');
+                imapsync(mailbox)
+                  .then(({stdout}) => {
+                    if (!this.isOnProcess) return;
 
-                    let queueChecker = setInterval(() => {
-                        this.$http.get('http://' + this.api + '/imapsync/queue/' + uuid)
-                            .then((response) => {
-                                if (response.data.status === 'queue' && this.queue.map(el => el.uuid).indexOf(uuid) === -1) {
-                                  this.queue.push(response.data);
-                                  // This code makes no sense to me.
-                                  // @fixme https://github.com/ridaamirini/ImapSyncClient/issues/5
-                                   /* if (!this.abortMessage()) {
-                                      // Abort with queue
-                                      clearInterval(queueChecker);
-                                      return this.abortMigration();
-                                    } */
-                                }
-                                // Stop on ABORT
-                                // Abort without Queue (because of request response directly back without queue)
-                                // That means something happens or went wrong
-                                if (!this.isOnProcess) {
-                                    clearInterval(queueChecker);
-                                    this.abortMessage();
-                                    return;
-                                }
-                                if (response.data.status === 'successful') {
-                                    clearInterval(queueChecker);
-
-                                    this.$store.commit('addLine', '==== LOG (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') ====');
-                                    this.$store.commit('addLine', response.data.log);
-                                    this.$store.commit('addLine', '==== LOG End ====');
-                                    this.$store.commit('addLine', mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ' <=> ' + uuid + ' [Finished]');
-                                    this.$store.commit('removeMailbox', index);
-                                    this.queue.splice(this.queue.map(el => el.uuid).indexOf(uuid), 1);
-
-                                    this.finished++;
-
-                                    this.completeMigration();
-                                    // Tick next Mailbox
-                                    this.migrateMailboxes();
-                                }
-                                else if (response.data.status === 'error') {
-                                    clearInterval(queueChecker);
-
-                                    // Stop on ABORT
-                                    if (!this.isOnProcess) return;
-
-                                    this.$store.commit('addLine', 'Failed to migrate (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') <=> ' + uuid + ' [Skipped]');
-                                    // Remove skipped from Mailbox list
-                                    this.$store.commit('removeMailbox', index);
-                                    this.queue.splice(this.queue.map(el => el.uuid).indexOf(uuid), 1);
-
-                                    this.skipped++;
-                                    this.completeMigration(true);
-                                    // Tick next Mailbox
-                                    this.migrateMailboxes();
-                                }
-                            }).catch((error) => {
-                            clearInterval(queueChecker);
-
-                            // Stop on ABORT
-                            if (!this.isOnProcess) return;
-
-                            this.$store.commit('addLine', 'Failed to migrate (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') <=> ' + uuid + ' [Skipped]');
-                            // Remove skipped from Mailbox list
-                            this.$store.commit('removeMailbox', index);
-                            this.queue.splice(this.queue.map(el => el.uuid).indexOf(uuid), 1);
-
-                            this.skipped++;
-                            this.completeMigration(true);
-                            // Tick next Mailbox
-                            this.migrateMailboxes();
-
-                            console.log(error);
-                            log.error(error);
-                        });
-                    }, 3000);
-                }).catch((error) => {
-                    this.$store.commit('addLine', 'Failed to migrate (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') [Skipped]');
-                    // Remove skipped from Mailbox list
+                    this.$store.commit('addLine', '==== LOG (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') ====');
+                    this.$store.commit('addLine', stdout);
+                    this.$store.commit('addLine', '==== LOG End ====');
+                    this.$store.commit('addLine', mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ' [Finished]');
                     this.$store.commit('removeMailbox', index);
 
-                    this.skipped++;
+                    this.finished++;
+
+                    // Log stats
+                    this.completeMigration();
+                    // Tick next Mailbox
+                    this.migrateMailboxes(index++);
+                  })
+                  .catch(error => {
+                    if (!this.isOnProcess) return;
+
+                    this.$store.commit('addError', 'Failed to migrate (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') [Failed]');
+                    this.$store.commit('addError', '==== LOG (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') ====');
+                    this.$store.commit('addError', (error instanceof Error ? error.toString() : error));
+                    this.$store.commit('addError', '==== LOG End ====');
+                    this.$store.commit('removeMailbox', index);
+
+                    this.failed++;
+
+                    // Log stats
                     this.completeMigration(true);
                     // Tick next Mailbox
-                    this.migrateMailboxes();
-                    console.log(error);
-                    log.error(error);
-                });
+                    this.migrateMailboxes(index++);
+                  });
             },
             startMigration () {
                 this.isOnProcess = true;
@@ -273,26 +229,12 @@
                 this.isOnProcess = false;
                 this.abortDialog = false;
 
-                if (this.queue.length === 0) return;
+                abortImapsync();
 
-                this.$http.post('http://' + this.api + '/imapsync/abort', {
-                    queue: JSON.stringify(this.queue)
-                })
-                .then((response) => {
-                    if (!response) return;
-                    this.abortMessage();
-                })
-                .catch((error) => {
-                    this.$store.commit('addLine', 'Something went wrong ?!');
-                    console.log(error);
-                    log.error(error);
-                });
-
-                // Clear queue
-                this.queue = [];
+                this.abortMessage();
             },
             abortMessage () {
-              this.$store.commit('addLine', 'Migration aborted ...');
+              this.$store.commit('addWarning', 'Migration aborted ...');
               this.$notify({
                 title: 'Migration',
                 message: 'Migration aborted',
@@ -300,7 +242,7 @@
               });
             },
             completeMigration (error = false) {
-                this.$store.commit('addLine', 'Total: ' + this.total + ' | Finished: ' + this.finished + ' | Skipped: ' + this.skipped);
+                this.$store.commit('addLine', 'Total: ' + this.total + ' | Finished: ' + this.finished + ' | Failed: ' + this.failed);
 
                 if (this.mailboxes.length === 0) {
                     this.$notify({
@@ -310,7 +252,7 @@
                     });
 
                     if (error) {
-                        this.$store.commit('addLine', 'Stopped! Click on console to view the LOG.');
+                        this.$store.commit('addWarning', 'Stopped! Click on console to view the LOG.');
                     }
                     else {
                         this.$store.commit('addLine', 'Finished! Click on console to view the LOG.');
@@ -325,8 +267,7 @@
                 // Reset counter
                 this.total = 0;
                 this.finished = 0;
-                this.skipped = 0;
-                this.queue = [];
+                this.failed = 0;
             }
         }
     };

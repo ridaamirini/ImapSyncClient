@@ -3,7 +3,6 @@ import { webFrame } from 'electron';
 import axios from 'axios';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
-import auth from '../../auth.json';
 
 import App from './App';
 import router from './router';
@@ -14,8 +13,6 @@ Vue.use(ElementUI);
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'));
 Vue.http = Vue.prototype.$http = axios;
 Vue.config.productionTip = false;
-
-Vue.http.defaults.auth = auth;
 
 /* eslint-disable no-new */
 new Vue({

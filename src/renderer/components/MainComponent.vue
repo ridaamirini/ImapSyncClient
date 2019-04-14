@@ -5,8 +5,8 @@
             <span style="color:#F9266C"> <i class="fa fa-heart-o fa-beat" aria-hidden="true"></i></span>
             <span class="pull-right" style="font-size: 20px;">
                 <el-button-group>
-                    <el-button type="primary" icon="el-icon-download" title="Coming soon" disabled></el-button>
-                    <el-button type="primary" icon="el-icon-upload2" title="Coming soon" disabled></el-button>
+                    <!--<el-button type="primary" icon="el-icon-download" title="Coming soon" disabled></el-button>-->
+                    <import-csv-button></import-csv-button>
                     <el-button type="primary" icon="el-icon-share" title="Coming soon" disabled></el-button>
                     <el-button type="primary" icon="el-icon-info" @click="aboutShow = true"></el-button>
                     <el-badge v-if="updateAvailable" class="noselect update-badge" :value="updateAvailable ? 1 : 0" :max="1"></el-badge>
@@ -37,7 +37,11 @@
             </el-row>
         </div>
 
-        <about v-on:about-hide="aboutShow = false" v-on:update-client="handleUpdate" :visible.sync="aboutShow" :updateAvailable="updateAvailable"></about>
+        <about v-on:about-hide="aboutShow = false"
+               v-on:update-client="handleUpdate"
+               :visible.sync="aboutShow"
+               :updateAvailable="updateAvailable"
+        ></about>
     </div>
 </template>
 
@@ -45,11 +49,12 @@
     import QueueTable from './QueueTable/QueueTable.vue';
     import MailboxForm from './Add/MailboxForm.vue';
     import About from './About.vue';
+    import ImportCsvButton from './ImportCsvButton.vue';
     import { Loading } from 'element-ui';
 
     export default {
         name: 'main-component',
-        components: { QueueTable, MailboxForm, About },
+        components: { QueueTable, MailboxForm, About, ImportCsvButton },
         created () {
           this.$electron.ipcRenderer.on('update-available',
             (event, { version, currentVersion, releaseNotes }) => {

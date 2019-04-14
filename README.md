@@ -20,9 +20,15 @@ mailboxes between two imap servers, one way, and without duplicates.
 ## Download
 Download the latest version from the [releases](https://github.com/ridaamirini/imapsyncclient/releases/latest) page.
 
+_**Warning:** Note that versions below 1.0 will not work anymore. Please update to the latest version._
+
 ## Demo
 
 ![image](https://github.com/ridaamirini/ImapSyncClient/blob/dev/docs/media/preview.gif?raw=true)
+
+### Import Mailboxes from CSV :page_facing_up:
+- [Example file *.csv](https://raw.githubusercontent.com/ridaamirini/ImapSyncClient/1.0/docs/example/example.csv)
+- [Example file *.txt](https://raw.githubusercontent.com/ridaamirini/ImapSyncClient/1.0/docs/example/example.txt)
 
 #### Build Setup
 
@@ -45,16 +51,14 @@ npm run lint
  ### Front-End
  - [Vue.js](https://github.com/vuejs/vue)
  - [Electron](https://github.com/electron/electron)
- - [electron-vue](https://github.com/SimulatedGREG/electron-vue)
+ - [ElectronVue](https://github.com/SimulatedGREG/electron-vue)
  - [Element](https://github.com/ElemeFE/element)
- #### API 
-  - [imapsync](https://github.com/imapsync/imapsync)
-  - [Slim](https://github.com/slimphp/Slim)
  ### Design inspired by
  - [imapsync.love](http://imapsync.love)
 
 ## TODO
-- [ ] Import Mailboxes from CSV or *.txt
+- [x] ~~Remove API dependency~~
+- [x] ~~Import Mailboxes from CSV~~
 - [ ] Mailboxes Rules (--exclude etc..)
 
 ## License
