@@ -201,7 +201,7 @@
 
                     this.$store.commit('addError', 'Failed to migrate (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') [Failed]');
                     this.$store.commit('addError', '==== LOG (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') ====');
-                    this.$store.commit('addError', error);
+                    this.$store.commit('addError', (error instanceof Error ? error.toString() : error));
                     this.$store.commit('addError', '==== LOG End ====');
                     this.$store.commit('removeMailbox', index);
 

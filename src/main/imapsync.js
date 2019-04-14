@@ -1,9 +1,19 @@
 import is from 'electron-is';
+import fs from 'fs';
 import path from 'path';
 import shell from 'shelljs';
+import { remote } from 'electron';
 
 // Childprocess id
 let process = null;
+const pidFilePath = path.join(remote.app.getPath('temp'), '/imapsync.pid');
+
+// Imapsync command options
+const commandOptions = [
+  '--nolog',
+  '--pidfile ' + pidFilePath,
+  '--pidfilelocking'
+];
 
 function getExecutablePath () {
   if (is.windows()) {
@@ -40,22 +50,35 @@ function imapsync (mailbox) {
   return new Promise((resolve, reject) => {
     let executable = getExecutablePath();
     let cmd = executable +
-              ' --nolog ' +
+              ' ' +
+              commandOptions.join(' ') +
+              ' ' +
               convertToCommandParams(mailbox);
 
-    shell.config.execPath = shell.which('nodejs').stdout;
+    const nodejs = shell.which('nodejs');
+    const node = shell.which('node');
+    shell.config.execPath = nodejs ? nodejs.stdout : (node ? node.stdout : reject(
+      new Error('Node.js was not found in the default path. Please specify the location.')
+    ));
+
     process = shell.exec(cmd, function (code, stdout, stderr) {
       if (code !== 0 && stderr) {
         reject(stderr || stdout);
       }
+
       resolve({code, stdout});
     });
   });
 }
 
 function abortImapsync () {
-  // @todo see #17
-  console.log(process.kill('SIGINT'));
+  process.kill('SIGINT');
+
+  if (fs.existsSync(pidFilePath)) {
+    fs.unlink(pidFilePath, error => {
+      if (error) console.error(error);
+    });
+  }
 }
 
 export {
