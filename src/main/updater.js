@@ -2,6 +2,8 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import { app, ipcMain } from 'electron';
 
+let isAutomaticallyCheckingForUpdates = false;
+
 app.once('browser-window-focus', (event, win) => {
   let __updateWin;
 
@@ -34,6 +36,11 @@ app.once('browser-window-focus', (event, win) => {
   autoUpdater.on('update-not-available', () => {
     if (__updateWin) return;
 
+    if (isAutomaticallyCheckingForUpdates) {
+      isAutomaticallyCheckingForUpdates = false;
+      return;
+    }
+
     win.webContents.send('update-not-available');
   });
 
@@ -63,5 +70,8 @@ app.once('browser-window-focus', (event, win) => {
 });
 
 export function checkForUpdates () {
-    if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates();
+    if (process.env.NODE_ENV !== 'production') return;
+
+    isAutomaticallyCheckingForUpdates = true;
+    autoUpdater.checkForUpdates();
 }
