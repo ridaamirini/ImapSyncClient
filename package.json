@@ -31,8 +31,7 @@
     "files": [
       "dist/electron/**/*",
       "package.json",
-      "revision.json",
-      "auth.json"
+      "revision.json"
     ],
     "dmg": {
       "contents": [
@@ -79,7 +78,7 @@
     "axios": "^0.18.1",
     "electron-is": "^3.0.0",
     "electron-log": "^1.3.0",
-    "electron-updater": "^2.18.2",
+    "electron-updater": "^4.0.0",
     "element-ui": "^2.0.5",
     "git-rev-sync": "^1.9.1",
     "vue": "^2.3.3",
@@ -104,7 +103,7 @@
     "del": "^3.0.0",
     "devtron": "^1.4.0",
     "electron": "^1.8.8",
-    "electron-builder": "^19.19.1",
+    "electron-builder": "^21.2.0",
     "electron-debug": "^1.4.0",
     "electron-devtools-installer": "^2.2.0",
     "eslint": "^4.4.1",

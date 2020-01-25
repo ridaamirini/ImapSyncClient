@@ -17,10 +17,10 @@ const commandOptions = [
 
 function getExecutablePath () {
   if (is.windows()) {
-    return path.join(__static, '/Windows/imapsync/imapsync.exe');
+    return path.join(__static, '/windows/imapsync/imapsync.exe');
   }
   else if (is.macOS()) {
-    return path.join(__static, '/bin/imapsync_bin_Darwin');
+    return path.join(__static, '/bin/imapsync_bin_darwin');
   }
   else if (is.linux()) {
     return path.join(__static, '/bin/imapsync');
