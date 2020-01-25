@@ -34,7 +34,7 @@
                 </el-row>
                 <el-row :gutter="12">
                       <el-col :span="12">
-                            Imapsync binary: v{{ imapsyncVersion }}
+                            ImapSync binary: v{{ imapsyncVersion }}
                       </el-col>
                 </el-row>
             </span>
