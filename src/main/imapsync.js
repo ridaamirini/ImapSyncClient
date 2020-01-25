@@ -1,11 +1,11 @@
 import is from 'electron-is';
 import fs from 'fs';
 import path from 'path';
-import shell from 'shelljs';
+import { exec } from 'child_process';
 import { remote } from 'electron';
 
 // Childprocess id
-let process = null;
+let childProcess = null;
 const pidFilePath = path.join(remote.app.getPath('temp'), '/imapsync.pid');
 
 // Imapsync command options
@@ -55,24 +55,23 @@ function imapsync (mailbox) {
               ' ' +
               convertToCommandParams(mailbox);
 
-    const nodejs = shell.which('nodejs');
-    const node = shell.which('node');
-    shell.config.execPath = nodejs ? nodejs.stdout : (node ? node.stdout : reject(
-      new Error('Node.js was not found in the default path. Please specify the location.')
-    ));
+    childProcess = exec(
+        cmd,
+        {encoding: 'utf8'},
+        (error, stdout, stderr) => {
+            const failure = error || stderr;
+            if (childProcess.exitCode !== 0 && failure) {
+                reject(failure);
+            }
 
-    process = shell.exec(cmd, function (code, stdout, stderr) {
-      if (code !== 0 && stderr) {
-        reject(stderr || stdout);
-      }
-
-      resolve({code, stdout});
-    });
+            resolve(stdout);
+        }
+    );
   });
 }
 
 function abortImapsync () {
-  process.kill('SIGINT');
+  childProcess.kill('SIGINT');
 
   if (fs.existsSync(pidFilePath)) {
     fs.unlink(pidFilePath, error => {

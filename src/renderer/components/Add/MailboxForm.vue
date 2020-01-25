@@ -180,7 +180,7 @@
                 this.$store.commit('addLine', 'Started to migrate (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ')');
 
                 imapsync(mailbox)
-                  .then(({stdout}) => {
+                  .then(stdout => {
                     if (!this.isOnProcess) return;
 
                     this.$store.commit('addLine', '==== LOG (' + mailbox.mailbox_from + ' => ' + mailbox.mailbox_to + ') ====');
