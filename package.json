@@ -3,7 +3,7 @@
   "displayName": "ImapSync Client",
   "productName": "ImapSync Client",
   "version": "1.0.1",
-  "author": "Rida Am. <rida-amirini@gmx.de>",
+  "author": "Rida A. <info@ridaamirini.me>",
   "description": "It's only an Internet Message Access Protocol Synchronization Client",
   "license": "MIT",
   "main": "./dist/electron/main.js",
