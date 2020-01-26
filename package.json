@@ -33,6 +33,15 @@
       "package.json",
       "revision.json"
     ],
+    "extraResources": [
+      {
+        "from": "imapsync_binaries/",
+        "to": "imapsync_binaries/",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
     "dmg": {
       "contents": [
         {
