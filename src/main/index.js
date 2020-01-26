@@ -62,16 +62,18 @@ function createWindow () {
 }
 
 // Single Instance
-let instanceToQuit = app.makeSingleInstance(function (commandLine, workingDirectory) {
-  if (mainWindow) {
-    if (mainWindow.isMinimized()) mainWindow.restore();
-    mainWindow.focus();
-  }
-});
+const instanceToQuit = app.requestSingleInstanceLock();
 
-if (instanceToQuit) app.quit();
-
-// app.on('ready', createWindow);
+if (!instanceToQuit) {
+    app.quit();
+} else {
+    app.on('second-instance', () => {
+        if (mainWindow) {
+            if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.focus();
+        }
+    });
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
