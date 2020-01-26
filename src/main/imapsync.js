@@ -29,7 +29,11 @@ function getExecutablePath() {
         binaryPath = 'bin/imapsync';
     }
 
-    return path.join(__static, 'imapsync_binaries/', binaryPath);
+    if (is.production()) {
+        return path.join(process.resourcesPath, 'imapsync_binaries/', binaryPath);
+    }
+
+    return path.join(__dirname, '../../imapsync_binaries/', binaryPath);
 }
 
 function mapImapsyncCommandArgs(mailbox) {
@@ -56,7 +60,9 @@ function imapsync(mailbox) {
             {encoding: 'utf8'},
             (error, stdout, stderr) => {
                 messages.success = stdout;
-                messages.failure = error || stderr;
+                if (stderr || error) {
+                    messages.failure = stderr || stdout || error;
+                }
             }
         );
 
