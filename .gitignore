@@ -8,5 +8,5 @@ npm-debug.log
 npm-debug.log.*
 thumbs.db
 !.gitkeep
-auth.json
 /.idea/
+.imapsync/downloads

@@ -46,6 +46,7 @@
 </template>
 <script>
     import revsion from '../../../revision';
+    import imapsyncVersion from '../../../imapsync_binaries/version';
 
     export default {
         name: 'about',
@@ -82,7 +83,7 @@
         },
         data () {
           return {
-            imapsyncVersion: '1.882',
+            imapsyncVersion: imapsyncVersion.version,
             checkingForUpdate: false
           };
         },
