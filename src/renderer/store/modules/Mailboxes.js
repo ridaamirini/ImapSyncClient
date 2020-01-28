@@ -6,6 +6,19 @@ const state = {
     list: []
 };
 
+if (process.env.NODE_ENV !== 'production') {
+    state.list = [
+        {
+            mailbox_from: 'test1',
+            password_from: 'secret1',
+            imap_from: 'test1.lamiral.info',
+            mailbox_to: 'test2',
+            password_to: 'secret2',
+            imap_to: 'test2.lamiral.info'
+        }
+    ];
+}
+
 const mutations = {
     resetList (state, list) {
         state.list = [];

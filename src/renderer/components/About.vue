@@ -34,7 +34,7 @@
                 </el-row>
                 <el-row :gutter="12">
                       <el-col :span="12">
-                            Imapsync binary: v{{ imapsyncVersion }}
+                            ImapSync binary: v{{ imapsyncVersion }}
                       </el-col>
                 </el-row>
             </span>
@@ -46,6 +46,7 @@
 </template>
 <script>
     import revsion from '../../../revision';
+    import imapsyncVersion from '../../../imapsync_binaries/version';
 
     export default {
         name: 'about',
@@ -82,7 +83,7 @@
         },
         data () {
           return {
-            imapsyncVersion: '1.882',
+            imapsyncVersion: imapsyncVersion.version,
             checkingForUpdate: false
           };
         },

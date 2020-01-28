@@ -5,9 +5,7 @@
             <span style="color:#F9266C"> <i class="fa fa-heart-o fa-beat" aria-hidden="true"></i></span>
             <span class="pull-right" style="font-size: 20px;">
                 <el-button-group>
-                    <!--<el-button type="primary" icon="el-icon-download" title="Coming soon" disabled></el-button>-->
                     <import-csv-button></import-csv-button>
-                    <el-button type="primary" icon="el-icon-share" title="Coming soon" disabled></el-button>
                     <el-button type="primary" icon="el-icon-info" @click="aboutShow = true"></el-button>
                     <el-badge v-if="updateAvailable" class="noselect update-badge" :value="updateAvailable ? 1 : 0" :max="1"></el-badge>
                 </el-button-group>

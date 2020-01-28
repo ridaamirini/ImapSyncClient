@@ -3,14 +3,14 @@
   "displayName": "ImapSync Client",
   "productName": "ImapSync Client",
   "version": "1.0.1",
-  "author": "Rida Am. <rida-amirini@gmx.de>",
+  "author": "Rida A. <info@ridaamirini.me>",
   "description": "It's only an Internet Message Access Protocol Synchronization Client",
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
     "revision": "node .electron-vue/revision.js",
     "release": "node .electron-vue/build.js && electron-builder",
-    "build": "node .electron-vue/build.js && electron-builder",
+    "build": "CSC_IDENTITY_AUTO_DISCOVERY=false node .electron-vue/build.js && electron-builder",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
@@ -20,7 +20,8 @@
     "pack": "npm run pack:main && npm run pack:renderer",
     "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
-    "postinstall": "npm run lint:fix"
+    "postinstall": "npm run lint:fix",
+    "impasync:upgrade:binaries": "node .imapsync/upgrade.js"
   },
   "build": {
     "productName": "ImapSync Client",
@@ -31,8 +32,16 @@
     "files": [
       "dist/electron/**/*",
       "package.json",
-      "revision.json",
-      "auth.json"
+      "revision.json"
+    ],
+    "extraResources": [
+      {
+        "from": "imapsync_binaries/",
+        "to": "imapsync_binaries/",
+        "filter": [
+          "**/*"
+        ]
+      }
     ],
     "dmg": {
       "contents": [
@@ -79,10 +88,9 @@
     "axios": "^0.18.1",
     "electron-is": "^3.0.0",
     "electron-log": "^1.3.0",
-    "electron-updater": "^2.18.2",
+    "electron-updater": "^4.0.0",
     "element-ui": "^2.0.5",
     "git-rev-sync": "^1.9.1",
-    "shelljs": "^0.8.3",
     "vue": "^2.3.3",
     "vue-electron": "^1.0.6",
     "vue-router": "^2.5.3",
@@ -104,8 +112,8 @@
     "css-loader": "^0.28.4",
     "del": "^3.0.0",
     "devtron": "^1.4.0",
-    "electron": "^1.8.8",
-    "electron-builder": "^19.19.1",
+    "electron": "^3.0.16",
+    "electron-builder": "^22.3.2",
     "electron-debug": "^1.4.0",
     "electron-devtools-installer": "^2.2.0",
     "eslint": "^4.4.1",
