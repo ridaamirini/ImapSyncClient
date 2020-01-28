@@ -2,6 +2,7 @@
   "name": "imapsyncclient",
   "displayName": "ImapSync Client",
   "productName": "ImapSync Client",
+  "homepage": "https://github.com/ridaamirini/ImapSyncClient"
   "version": "1.0.1",
   "author": "Rida A. <info@ridaamirini.me>",
   "description": "It's only an Internet Message Access Protocol Synchronization Client",
