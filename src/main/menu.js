@@ -6,7 +6,7 @@ const template = [
     submenu: [
       {
         label: 'Learn More',
-        click () { require('electron').shell.openExternal('https://ridaamirini.github.io/ImapSyncClient/'); }
+        click () { require('electron').shell.openExternal('https://github.com/ridaamirini/ImapSyncClient'); }
       }
     ]
   }
